@@ -7,32 +7,45 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 public class ArenaListener implements Listener {
 
-    private final ArenaManager manager;
+    private final ArenaManager arenaManager;
     private final SelectionManager selectionManager;
 
-    public ArenaListener(ArenaManager manager, SelectionManager selectionManager) {
-        this.manager = manager;
+    public ArenaListener(ArenaManager arenaManager, SelectionManager selectionManager) {
+        this.arenaManager = arenaManager;
         this.selectionManager = selectionManager;
     }
 
     @EventHandler
     public void onSelect(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
+        Player p = e.getPlayer();
 
-        if (player.getInventory().getItemInMainHand().getType() != Material.GOLDEN_HOE) return;
+        ItemStack item = e.getItem();
+        if (item == null || item.getType() != Material.GOLDEN_HOE) return;
+
+        // 🔥 FIX – ignoruje offhand (druhá ruka)
+        if (e.getHand() != EquipmentSlot.HAND) return;
 
         if (e.getClickedBlock() == null) return;
 
-        if (e.getAction().toString().contains("LEFT_CLICK")) {
-            selectionManager.setPos1(player, e.getClickedBlock().getLocation());
-            player.sendMessage(ChatColor.GREEN + "Pozice 1 nastavena!");
-        } else if (e.getAction().toString().contains("RIGHT_CLICK")) {
-            selectionManager.setPos2(player, e.getClickedBlock().getLocation());
-            player.sendMessage(ChatColor.GREEN + "Pozice 2 nastavena!");
+        Action action = e.getAction();
+
+        if (action == Action.LEFT_CLICK_BLOCK) {
+            selectionManager.setPos1(p, e.getClickedBlock().getLocation());
+            p.sendMessage(ChatColor.GREEN + "Pozice 1 nastavena!");
+            e.setCancelled(true);
+        }
+
+        else if (action == Action.RIGHT_CLICK_BLOCK) {
+            selectionManager.setPos2(p, e.getClickedBlock().getLocation());
+            p.sendMessage(ChatColor.AQUA + "Pozice 2 nastavena!");
+            e.setCancelled(true);
         }
     }
 }
