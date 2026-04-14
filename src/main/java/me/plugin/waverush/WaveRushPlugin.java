@@ -6,8 +6,10 @@ import me.plugin.waverush.listener.DeathListener;
 import me.plugin.waverush.listener.KillListener;
 import me.plugin.waverush.listener.KitListener;
 import me.plugin.waverush.listener.LobbyListener;
+import me.plugin.waverush.listener.SignListener;
 import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.manager.SelectionManager;
+import me.plugin.waverush.task.SignUpdateTask;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class WaveRushPlugin extends JavaPlugin {
@@ -18,7 +20,7 @@ public class WaveRushPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        // 🔥 načtení configu
+        // 🔥 config
         saveDefaultConfig();
 
         // 🔧 manažeři
@@ -41,6 +43,13 @@ public class WaveRushPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(
                 new LobbyListener(), this);
+
+        // 🪧 cedulky
+        getServer().getPluginManager().registerEvents(
+                new SignListener(), this);
+
+        // 🔄 live update cedulek každou sekundu
+        new SignUpdateTask().runTaskTimer(this, 0L, 20L);
 
         // ⚡ command (/ma)
         if (getCommand("ma") != null) {
