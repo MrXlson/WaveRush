@@ -15,19 +15,32 @@ public class WaveRushPlugin extends JavaPlugin {
         this.arenaManager = new ArenaManager();
         this.selectionManager = new SelectionManager();
 
+        // registrace listeneru
         getServer().getPluginManager().registerEvents(
                 new ArenaListener(arenaManager, selectionManager),
                 this
         );
 
+        // registrace commandu /ma
+        if (getCommand("ma") != null) {
+            getCommand("ma").setExecutor(new me.plugin.waverush.command.MACommand());
+        } else {
+            getLogger().severe("Command 'ma' není registrovaný v plugin.yml!");
+        }
+
         getLogger().info("WaveRush zapnut!");
     }
 
-    public SelectionManager getSelectionManager() {
-        return selectionManager;
+    @Override
+    public void onDisable() {
+        getLogger().info("WaveRush vypnut!");
     }
 
     public ArenaManager getArenaManager() {
         return arenaManager;
+    }
+
+    public SelectionManager getSelectionManager() {
+        return selectionManager;
     }
 }
