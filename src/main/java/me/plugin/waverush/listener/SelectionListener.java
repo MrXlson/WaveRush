@@ -1,48 +1,29 @@
-package me.plugin.waverush.listener;
+package me.plugin.waverush.manager;
 
-import me.plugin.waverush.manager.SelectionManager;
-import me.plugin.waverush.model.Selection;
-import org.bukkit.Material;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
-import org.bukkit.event.player.PlayerInteractEvent;
 
-public class SelectionListener implements Listener {
+import java.util.HashMap;
+import java.util.UUID;
 
-    private final SelectionManager manager;
+public class SelectionManager {
 
-    public SelectionListener(SelectionManager manager) {
-        this.manager = manager;
+    private final HashMap<UUID, Location> pos1 = new HashMap<>();
+    private final HashMap<UUID, Location> pos2 = new HashMap<>();
+
+    public void setPos1(Player player, Location loc) {
+        pos1.put(player.getUniqueId(), loc);
     }
 
-    @EventHandler
-    public void onClick(PlayerInteractEvent e) {
+    public void setPos2(Player player, Location loc) {
+        pos2.put(player.getUniqueId(), loc);
+    }
 
-        Player p = e.getPlayer();
-        if (e.getItem() == null) return;
+    public Location getPos1(Player player) {
+        return pos1.get(player.getUniqueId());
+    }
 
-        Selection sel = manager.get(p.getUniqueId());
-
-        if (e.getItem().getType() == Material.GOLDEN_HOE) {
-
-            if (e.getAction().toString().contains("LEFT")) {
-                sel.pos1 = p.getLocation();
-                p.sendMessage("§aPos1 set");
-            } else {
-                sel.pos2 = p.getLocation();
-                p.sendMessage("§aPos2 set");
-            }
-        }
-
-        if (e.getItem().getType() == Material.GOLDEN_SHOVEL) {
-
-            if (e.getAction().toString().contains("LEFT")) {
-                sel.playerSpawn = p.getLocation();
-                p.sendMessage("§aPlayer spawn set");
-            } else {
-                sel.mobSpawns.add(p.getLocation());
-                p.sendMessage("§aMob spawn přidán");
-            }
-        }
+    public Location getPos2(Player player) {
+        return pos2.get(player.getUniqueId());
     }
 }
