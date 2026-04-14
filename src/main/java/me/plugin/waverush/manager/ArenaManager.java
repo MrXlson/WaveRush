@@ -15,28 +15,38 @@ public class ArenaManager {
     private final Map<Player, Arena> playing = new HashMap<>();
     private final Map<Player, ItemStack[]> savedInventory = new HashMap<>();
 
+    private final KitManager kitManager = new KitManager();
+
+    // vytvoření arény
     public void createArena(String name, Arena arena) {
         arenas.put(name.toLowerCase(), arena);
     }
 
+    // získání arény
     public Arena getArena(String name) {
         return arenas.get(name.toLowerCase());
     }
 
+    // join + start hry
     public void joinArena(Player player, String name) {
         Arena arena = getArena(name);
         if (arena == null) return;
 
-        // 💾 uloží inventář
+        // uloží inventář
         savedInventory.put(player, player.getInventory().getContents());
 
-        // 🧹 vyčistí inventář
+        // vyčistí inventář
         player.getInventory().clear();
 
         playing.put(player, arena);
 
+        // teleport
         player.teleport(arena.getPos1());
 
+        // 🎒 dá kit
+        kitManager.giveKit(player);
+
+        // start hry
         new GameTask(player, arena).runTaskTimer(
                 WaveRushPlugin.getPlugin(WaveRushPlugin.class),
                 0L,
@@ -47,7 +57,7 @@ public class ArenaManager {
     public void leave(Player player) {
         playing.remove(player);
 
-        // 🔙 vrátí inventář
+        // vrátí inventář
         if (savedInventory.containsKey(player)) {
             player.getInventory().setContents(savedInventory.get(player));
             savedInventory.remove(player);
@@ -56,5 +66,9 @@ public class ArenaManager {
 
     public boolean isPlaying(Player player) {
         return playing.containsKey(player);
+    }
+
+    public KitManager getKitManager() {
+        return kitManager;
     }
 }
