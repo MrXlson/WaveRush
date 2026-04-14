@@ -2,20 +2,27 @@ package me.plugin.waverush.model;
 
 import org.bukkit.Location;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Arena {
 
-    public String name;
-    public Location pos1;
-    public Location pos2;
-    public Location playerSpawn;
-    public List<Location> mobSpawns = new ArrayList<>();
+    private final String name;
+    private final Location pos1;
+    private final Location pos2;
 
-    public List<org.bukkit.entity.Player> players = new ArrayList<>();
-
-    public Arena(String name) {
+    public Arena(String name, Location pos1, Location pos2) {
         this.name = name;
+        this.pos1 = pos1;
+        this.pos2 = pos2;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Location getPos1() {
+        return pos1;
+    }
+
+    public Location getPos2() {
+        return pos2;
     }
 }
