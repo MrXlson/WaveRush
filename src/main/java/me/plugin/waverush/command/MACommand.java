@@ -1,6 +1,8 @@
 package me.plugin.waverush.command;
 
 import me.plugin.waverush.WaveRushPlugin;
+import me.plugin.waverush.gui.KitGUI;
+import me.plugin.waverush.gui.LobbyGUI;
 import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.manager.SelectionManager;
 import me.plugin.waverush.model.Arena;
@@ -24,6 +26,18 @@ public class MACommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
         if (!(sender instanceof Player player)) return true;
+
+        // /ma menu
+        if (args.length == 1 && args[0].equalsIgnoreCase("menu")) {
+            LobbyGUI.open(player);
+            return true;
+        }
+
+        // /ma kit (GUI)
+        if (args.length == 1 && args[0].equalsIgnoreCase("kit")) {
+            KitGUI.open(player);
+            return true;
+        }
 
         // /ma select
         if (args.length == 1 && args[0].equalsIgnoreCase("select")) {
@@ -68,34 +82,7 @@ public class MACommand implements CommandExecutor {
             return true;
         }
 
-        // 🎒 /ma kit <name>
-        if (args.length == 2 && args[0].equalsIgnoreCase("kit")) {
-
-            String kit = args[1].toLowerCase();
-
-            if (!kit.equals("warrior") && !kit.equals("archer") && !kit.equals("tank")
-                    && !kit.equals("mage") && !kit.equals("speed")) {
-
-                player.sendMessage(ChatColor.RED + "Kity: warrior, archer, tank, mage, speed");
-                return true;
-            }
-
-            arenaManager.getKitManager().setKit(player, kit);
-
-            player.sendMessage(ChatColor.GREEN + "Vybral jsi kit: " + kit);
-            return true;
-        }
-
-        // 🏠 /ma setlobby
-        if (args.length == 1 && args[0].equalsIgnoreCase("setlobby")) {
-
-            arenaManager.setLobby(player.getLocation());
-
-            player.sendMessage(ChatColor.GREEN + "Lobby nastaveno!");
-            return true;
-        }
-
-        player.sendMessage(ChatColor.RED + "/ma select | /ma create <name> | /ma join <name> | /ma kit <name> | /ma setlobby");
+        player.sendMessage(ChatColor.YELLOW + "/ma menu | /ma kit | /ma select | /ma create <name> | /ma join <name>");
         return true;
     }
 }
