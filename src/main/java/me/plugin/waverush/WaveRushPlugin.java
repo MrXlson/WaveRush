@@ -3,6 +3,7 @@ package me.plugin.waverush;
 import me.plugin.waverush.command.MACommand;
 import me.plugin.waverush.listener.ArenaListener;
 import me.plugin.waverush.listener.KillListener;
+import me.plugin.waverush.listener.DeathListener;
 import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.manager.SelectionManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,6 +26,11 @@ public class WaveRushPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(
                 new KillListener(),
+                this
+        );
+
+        getServer().getPluginManager().registerEvents(
+                new DeathListener(),
                 this
         );
 
