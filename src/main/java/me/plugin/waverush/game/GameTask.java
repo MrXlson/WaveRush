@@ -1,7 +1,6 @@
 package me.plugin.waverush.game;
 
 import me.plugin.waverush.model.Arena;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -20,7 +19,7 @@ public class GameTask extends BukkitRunnable {
     private final Random random = new Random();
 
     private int wave = 1;
-    private final int maxWave = 5; // 🔥 kolik vln do výhry
+    private final int maxWave = 5;
 
     public GameTask(Player player, Arena arena) {
         this.player = player;
@@ -31,6 +30,7 @@ public class GameTask extends BukkitRunnable {
     @Override
     public void run() {
 
+        // 💀 pokud hráč není online nebo je mrtvý → stop
         if (!player.isOnline() || player.isDead()) {
             cancel();
             return;
@@ -39,6 +39,12 @@ public class GameTask extends BukkitRunnable {
         // 🏆 WIN CONDITION
         if (wave > maxWave) {
             player.sendMessage("§6Vyhrál jsi arénu!");
+
+            // 💰 REWARD
+            player.getInventory().addItem(
+                    new org.bukkit.inventory.ItemStack(org.bukkit.Material.DIAMOND, 3)
+            );
+
             cancel();
             return;
         }
@@ -61,6 +67,7 @@ public class GameTask extends BukkitRunnable {
         wave++;
     }
 
+    // 🔥 kill systém
     public static void addKill(Player player) {
         UUID uuid = player.getUniqueId();
         kills.put(uuid, kills.getOrDefault(uuid, 0) + 1);
