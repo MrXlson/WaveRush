@@ -52,7 +52,7 @@ public class MACommand implements CommandExecutor {
             return true;
         }
 
-        // 🔥 /ma join <name>
+        // /ma join <name>
         if (args.length == 2 && args[0].equalsIgnoreCase("join")) {
 
             Arena arena = arenaManager.getArena(args[1]);
@@ -68,7 +68,23 @@ public class MACommand implements CommandExecutor {
             return true;
         }
 
-        player.sendMessage(ChatColor.RED + "/ma select | /ma create <name> | /ma join <name>");
+        // 🎒 /ma kit <name>
+        if (args.length == 2 && args[0].equalsIgnoreCase("kit")) {
+
+            String kit = args[1].toLowerCase();
+
+            if (!kit.equals("warrior") && !kit.equals("archer") && !kit.equals("tank")) {
+                player.sendMessage(ChatColor.RED + "Dostupné kity: warrior, archer, tank");
+                return true;
+            }
+
+            arenaManager.getKitManager().setKit(player, kit);
+
+            player.sendMessage(ChatColor.GREEN + "Vybral jsi kit: " + kit);
+            return true;
+        }
+
+        player.sendMessage(ChatColor.RED + "/ma select | /ma create <name> | /ma join <name> | /ma kit <name>");
         return true;
     }
 }
