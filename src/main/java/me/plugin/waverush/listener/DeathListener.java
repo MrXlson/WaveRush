@@ -14,6 +14,7 @@ public class DeathListener implements Listener {
         Player player = e.getEntity();
 
         player.sendMessage(ChatColor.RED + "Prohrál jsi!");
+        player.sendTitle("§cPROHRA", "§7Zkus to znovu!", 10, 60, 10);
 
         WaveRushPlugin.getPlugin(WaveRushPlugin.class)
                 .getArenaManager()
