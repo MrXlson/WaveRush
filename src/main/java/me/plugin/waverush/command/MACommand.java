@@ -5,8 +5,10 @@ import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.manager.SelectionManager;
 import me.plugin.waverush.model.Arena;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class MACommand implements CommandExecutor {
 
@@ -23,12 +25,14 @@ public class MACommand implements CommandExecutor {
 
         if (!(sender instanceof Player player)) return true;
 
+        // /ma select
         if (args.length == 1 && args[0].equalsIgnoreCase("select")) {
-            player.getInventory().addItem(new org.bukkit.inventory.ItemStack(org.bukkit.Material.GOLDEN_HOE));
+            player.getInventory().addItem(new ItemStack(Material.GOLDEN_HOE));
             player.sendMessage(ChatColor.GREEN + "Dostal jsi selekční nástroj!");
             return true;
         }
 
+        // /ma create <name>
         if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
 
             if (selectionManager.getPos1(player) == null || selectionManager.getPos2(player) == null) {
@@ -48,7 +52,23 @@ public class MACommand implements CommandExecutor {
             return true;
         }
 
-        player.sendMessage(ChatColor.RED + "/ma select | /ma create <name>");
+        // 🔥 /ma join <name>
+        if (args.length == 2 && args[0].equalsIgnoreCase("join")) {
+
+            Arena arena = arenaManager.getArena(args[1]);
+
+            if (arena == null) {
+                player.sendMessage(ChatColor.RED + "Arena neexistuje!");
+                return true;
+            }
+
+            arenaManager.joinArena(player, args[1]);
+
+            player.sendMessage(ChatColor.GREEN + "Připojen do arény: " + args[1]);
+            return true;
+        }
+
+        player.sendMessage(ChatColor.RED + "/ma select | /ma create <name> | /ma join <name>");
         return true;
     }
-            }
+}
