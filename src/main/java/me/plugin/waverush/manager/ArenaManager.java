@@ -8,8 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ArenaManager {
 
@@ -18,6 +17,9 @@ public class ArenaManager {
     private final Map<String, Arena> arenas = new HashMap<>();
     private final Map<Player, Arena> playing = new HashMap<>();
     private final Map<Player, ItemStack[]> savedInventory = new HashMap<>();
+
+    // 🔥 NOVÉ – hráči v arénách
+    private final Map<String, List<Player>> arenaPlayers = new HashMap<>();
 
     private final KitManager kitManager;
 
@@ -28,10 +30,23 @@ public class ArenaManager {
 
     public void createArena(String name, Arena arena) {
         arenas.put(name.toLowerCase(), arena);
+        arenaPlayers.put(name.toLowerCase(), new ArrayList<>());
     }
 
     public Arena getArena(String name) {
         return arenas.get(name.toLowerCase());
+    }
+
+    public Map<String, Arena> getArenas() {
+        return arenas;
+    }
+
+    public int getPlayerCount(String arena) {
+        return arenaPlayers.getOrDefault(arena.toLowerCase(), new ArrayList<>()).size();
+    }
+
+    public List<Player> getPlayers(String arena) {
+        return arenaPlayers.getOrDefault(arena.toLowerCase(), new ArrayList<>());
     }
 
     public Location getLobby() {
@@ -64,6 +79,9 @@ public class ArenaManager {
 
         playing.put(player, arena);
 
+        // 🔥 přidání hráče do arény
+        arenaPlayers.get(name.toLowerCase()).add(player);
+
         player.teleport(arena.getPos1());
 
         kitManager.giveKit(player);
@@ -76,7 +94,11 @@ public class ArenaManager {
     }
 
     public void leave(Player player) {
-        playing.remove(player);
+        Arena arena = playing.remove(player);
+
+        if (arena != null) {
+            arenaPlayers.get(arena.getName().toLowerCase()).remove(player);
+        }
 
         player.teleport(getLobby());
 
