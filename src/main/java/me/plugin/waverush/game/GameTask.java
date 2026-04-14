@@ -20,6 +20,7 @@ public class GameTask extends BukkitRunnable {
     private final Random random = new Random();
 
     private int wave = 1;
+    private final int maxWave = 5; // 🔥 kolik vln do výhry
 
     public GameTask(Player player, Arena arena) {
         this.player = player;
@@ -30,12 +31,19 @@ public class GameTask extends BukkitRunnable {
     @Override
     public void run() {
 
-        if (!player.isOnline()) {
+        if (!player.isOnline() || player.isDead()) {
             cancel();
             return;
         }
 
-        int amount = 2 + wave; // čím vyšší wave, tím víc mobů
+        // 🏆 WIN CONDITION
+        if (wave > maxWave) {
+            player.sendMessage("§6Vyhrál jsi arénu!");
+            cancel();
+            return;
+        }
+
+        int amount = 2 + wave;
 
         for (int i = 0; i < amount; i++) {
             Location base = player.getLocation();
@@ -53,7 +61,6 @@ public class GameTask extends BukkitRunnable {
         wave++;
     }
 
-    // 🔥 kill count
     public static void addKill(Player player) {
         UUID uuid = player.getUniqueId();
         kills.put(uuid, kills.getOrDefault(uuid, 0) + 1);
