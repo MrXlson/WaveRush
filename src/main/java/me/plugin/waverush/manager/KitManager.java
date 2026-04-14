@@ -1,16 +1,20 @@
 package me.plugin.waverush.manager;
 
+import me.plugin.waverush.WaveRushPlugin;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class KitManager {
 
+    private final WaveRushPlugin plugin;
     private final Map<UUID, String> selectedKit = new HashMap<>();
+
+    public KitManager(WaveRushPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     public void setKit(Player player, String kit) {
         selectedKit.put(player.getUniqueId(), kit);
@@ -25,38 +29,19 @@ public class KitManager {
 
         player.getInventory().clear();
 
-        switch (kit.toLowerCase()) {
+        String path = "kits." + kit + ".items";
 
-            case "warrior":
-                player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
-                player.getInventory().addItem(new ItemStack(Material.SHIELD));
-                player.getInventory().addItem(new ItemStack(Material.COOKED_BEEF, 16));
-                break;
+        if (!plugin.getConfig().contains(path)) return;
 
-            case "archer":
-                player.getInventory().addItem(new ItemStack(Material.BOW));
-                player.getInventory().addItem(new ItemStack(Material.ARROW, 64));
-                player.getInventory().addItem(new ItemStack(Material.COOKED_BEEF, 8));
-                break;
+        List<Map<?, ?>> items = plugin.getConfig().getMapList(path);
 
-            case "tank":
-                player.getInventory().setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
-                player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
-                break;
+        for (Map<?, ?> map : items) {
+            String material = (String) map.get("material");
+            int amount = (int) map.getOrDefault("amount", 1);
 
-            case "mage":
-                player.getInventory().addItem(new ItemStack(Material.BLAZE_ROD));
-                player.getInventory().addItem(new ItemStack(Material.GOLDEN_APPLE, 3));
-                break;
-
-            case "speed":
-                player.getInventory().addItem(new ItemStack(Material.STONE_SWORD));
-                player.getInventory().addItem(new ItemStack(Material.SUGAR, 5));
-                break;
-
-            default:
-                player.getInventory().addItem(new ItemStack(Material.WOODEN_SWORD));
-                break;
+            player.getInventory().addItem(
+                    new ItemStack(Material.valueOf(material), amount)
+            );
         }
     }
 }
