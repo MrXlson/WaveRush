@@ -30,17 +30,16 @@ public class GameTask extends BukkitRunnable {
     @Override
     public void run() {
 
-        // 💀 pokud hráč není online nebo je mrtvý → stop
         if (!player.isOnline() || player.isDead()) {
             cancel();
             return;
         }
 
-        // 🏆 WIN CONDITION
+        // 🏆 WIN
         if (wave > maxWave) {
             player.sendMessage("§6Vyhrál jsi arénu!");
+            player.sendTitle("§6VÝHRA!", "§7Zvládl jsi všechny vlny!", 10, 60, 10);
 
-            // 💰 REWARD
             player.getInventory().addItem(
                     new org.bukkit.inventory.ItemStack(org.bukkit.Material.DIAMOND, 3)
             );
@@ -64,10 +63,12 @@ public class GameTask extends BukkitRunnable {
 
         player.sendMessage("§eWave " + wave + " §7| Spawnuje se " + amount + " mobů");
 
+        // 📊 Actionbar info
+        player.sendActionBar("§eWave: " + wave + " §7| §aKilly: " + getKills(player));
+
         wave++;
     }
 
-    // 🔥 kill systém
     public static void addKill(Player player) {
         UUID uuid = player.getUniqueId();
         kills.put(uuid, kills.getOrDefault(uuid, 0) + 1);
