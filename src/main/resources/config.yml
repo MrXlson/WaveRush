@@ -1,0 +1,69 @@
+# 🌊 WaveRush Config
+
+# 🏠 Lobby
+lobby:
+  world: world
+  x: 0
+  y: 100
+  z: 0
+  yaw: 0
+  pitch: 0
+
+# ⚔️ Game
+game:
+  max-wave: 5
+  mobs-per-wave-base: 2
+  spawn-radius: 3
+  wave-delay-ticks: 100
+
+# 💰 Reward
+reward:
+  enabled: true
+  items:
+    - material: DIAMOND
+      amount: 3
+
+# 🎒 Kits
+kits:
+
+  warrior:
+    items:
+      - material: IRON_SWORD
+      - material: SHIELD
+      - material: COOKED_BEEF
+        amount: 16
+
+  archer:
+    items:
+      - material: BOW
+      - material: ARROW
+        amount: 64
+
+  tank:
+    armor:
+      chestplate: DIAMOND_CHESTPLATE
+    items:
+      - material: IRON_SWORD
+
+  mage:
+    items:
+      - material: BLAZE_ROD
+      - material: GOLDEN_APPLE
+        amount: 3
+
+  speed:
+    items:
+      - material: STONE_SWORD
+      - material: SUGAR
+        amount: 5
+
+# 💬 Messages
+messages:
+  prefix: "&6[WaveRush] "
+
+  join: "&aPřipojen do arény!"
+  leave: "&cOpustil jsi arénu!"
+  win: "&6Vyhrál jsi arénu!"
+  lose: "&cProhrál jsi!"
+  no-arena: "&cArena neexistuje!"
+  no-selection: "&cMusíš nastavit obě pozice!"
