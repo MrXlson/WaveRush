@@ -16,9 +16,9 @@ public class GameTask extends BukkitRunnable {
     @Override
     public void run() {
 
-        for (var loc : arena.mobSpawns) {
-            for (int i = 0; i < wave; i++) {
-                loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
+//        for (var loc : arena.mobSpawns) {
+ //           for (int i = 0; i < wave; i++) {
+ //               loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
             }
         }
 
