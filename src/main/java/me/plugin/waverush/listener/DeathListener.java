@@ -1,5 +1,6 @@
 package me.plugin.waverush.listener;
 
+import me.plugin.waverush.WaveRushPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,5 +14,9 @@ public class DeathListener implements Listener {
         Player player = e.getEntity();
 
         player.sendMessage(ChatColor.RED + "Prohrál jsi!");
+
+        WaveRushPlugin.getPlugin(WaveRushPlugin.class)
+                .getArenaManager()
+                .leave(player);
     }
 }
