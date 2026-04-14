@@ -73,8 +73,10 @@ public class MACommand implements CommandExecutor {
 
             String kit = args[1].toLowerCase();
 
-            if (!kit.equals("warrior") && !kit.equals("archer") && !kit.equals("tank")) {
-                player.sendMessage(ChatColor.RED + "Dostupné kity: warrior, archer, tank");
+            if (!kit.equals("warrior") && !kit.equals("archer") && !kit.equals("tank")
+                    && !kit.equals("mage") && !kit.equals("speed")) {
+
+                player.sendMessage(ChatColor.RED + "Kity: warrior, archer, tank, mage, speed");
                 return true;
             }
 
@@ -84,7 +86,16 @@ public class MACommand implements CommandExecutor {
             return true;
         }
 
-        player.sendMessage(ChatColor.RED + "/ma select | /ma create <name> | /ma join <name> | /ma kit <name>");
+        // 🏠 /ma setlobby
+        if (args.length == 1 && args[0].equalsIgnoreCase("setlobby")) {
+
+            arenaManager.setLobby(player.getLocation());
+
+            player.sendMessage(ChatColor.GREEN + "Lobby nastaveno!");
+            return true;
+        }
+
+        player.sendMessage(ChatColor.RED + "/ma select | /ma create <name> | /ma join <name> | /ma kit <name> | /ma setlobby");
         return true;
     }
 }
