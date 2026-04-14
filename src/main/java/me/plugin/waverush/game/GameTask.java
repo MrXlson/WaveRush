@@ -1,5 +1,6 @@
 package me.plugin.waverush.game;
 
+import me.plugin.waverush.WaveRushPlugin;
 import me.plugin.waverush.model.Arena;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -14,14 +15,15 @@ public class GameTask extends BukkitRunnable {
 
     private static final HashMap<UUID, Integer> kills = new HashMap<>();
 
+    private final WaveRushPlugin plugin;
     private final Player player;
     private final Arena arena;
     private final Random random = new Random();
 
     private int wave = 1;
-    private final int maxWave = 5;
 
-    public GameTask(Player player, Arena arena) {
+    public GameTask(WaveRushPlugin plugin, Player player, Arena arena) {
+        this.plugin = plugin;
         this.player = player;
         this.arena = arena;
         kills.put(player.getUniqueId(), 0);
@@ -35,43 +37,55 @@ public class GameTask extends BukkitRunnable {
             return;
         }
 
-        // 🏆 WIN
+        int maxWave = plugin.getConfig().getInt("game.max-wave");
+
         if (wave > maxWave) {
             player.sendMessage("§6Vyhrál jsi arénu!");
             player.sendTitle("§6VÝHRA!", "§7Zvládl jsi všechny vlny!", 10, 60, 10);
 
-            player.getInventory().addItem(
-                    new org.bukkit.inventory.ItemStack(org.bukkit.Material.DIAMOND, 3)
-            );
+            if (plugin.getConfig().getBoolean("reward.enabled")) {
+                plugin.getConfig().getMapList("reward.items").forEach(map -> {
+                    String material = (String) map.get("material");
+                    int amount = (int) map.getOrDefault("amount", 1);
+
+                    player.getInventory().addItem(
+                            new org.bukkit.inventory.ItemStack(
+                                    org.bukkit.Material.valueOf(material),
+                                    amount
+                            )
+                    );
+                });
+            }
 
             cancel();
             return;
         }
 
-        int amount = 2 + wave;
+        int base = plugin.getConfig().getInt("game.mobs-per-wave-base");
+        int radius = plugin.getConfig().getInt("game.spawn-radius");
+
+        int amount = base + wave;
 
         for (int i = 0; i < amount; i++) {
-            Location base = player.getLocation();
+            Location baseLoc = player.getLocation();
 
-            double x = base.getX() + (random.nextInt(6) - 3);
-            double z = base.getZ() + (random.nextInt(6) - 3);
+            double x = baseLoc.getX() + (random.nextInt(radius * 2) - radius);
+            double z = baseLoc.getZ() + (random.nextInt(radius * 2) - radius);
 
-            Location spawn = new Location(base.getWorld(), x, base.getY(), z);
+            Location spawn = new Location(baseLoc.getWorld(), x, baseLoc.getY(), z);
 
-            base.getWorld().spawnEntity(spawn, EntityType.ZOMBIE);
+            baseLoc.getWorld().spawnEntity(spawn, EntityType.ZOMBIE);
         }
 
-        player.sendMessage("§eWave " + wave + " §7| Spawnuje se " + amount + " mobů");
+        player.sendMessage("§eWave " + wave + " §7| " + amount + " mobů");
 
-        // 📊 Actionbar info
         player.sendActionBar("§eWave: " + wave + " §7| §aKilly: " + getKills(player));
 
         wave++;
     }
 
     public static void addKill(Player player) {
-        UUID uuid = player.getUniqueId();
-        kills.put(uuid, kills.getOrDefault(uuid, 0) + 1);
+        kills.put(player.getUniqueId(), kills.getOrDefault(player.getUniqueId(), 0) + 1);
     }
 
     public static int getKills(Player player) {
