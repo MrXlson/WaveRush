@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.List; // 🔥 důležitý import
 
 public class GameTask extends BukkitRunnable {
 
@@ -44,6 +45,7 @@ public class GameTask extends BukkitRunnable {
             player.sendMessage("§6Vyhrál jsi arénu!");
             player.sendTitle("§6VÝHRA!", "§7Zvládl jsi všechny vlny!", 10, 60, 10);
 
+            // 🎁 REWARD Z CONFIGU
             if (plugin.getConfig().getBoolean("reward.enabled")) {
 
                 List<Map<?, ?>> rewards = plugin.getConfig().getMapList("reward.items");
@@ -54,7 +56,7 @@ public class GameTask extends BukkitRunnable {
 
                     int amount = 1;
                     if (map.containsKey("amount")) {
-                        amount = ((Number) map.get("amount")).intValue(); // 🔥 FIX
+                        amount = ((Number) map.get("amount")).intValue();
                     }
 
                     player.getInventory().addItem(
@@ -93,7 +95,8 @@ public class GameTask extends BukkitRunnable {
     }
 
     public static void addKill(Player player) {
-        kills.put(player.getUniqueId(), kills.getOrDefault(player.getUniqueId(), 0) + 1);
+        kills.put(player.getUniqueId(),
+                kills.getOrDefault(player.getUniqueId(), 0) + 1);
     }
 
     public static int getKills(Player player) {
