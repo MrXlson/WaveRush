@@ -36,8 +36,13 @@ public class KitManager {
         List<Map<?, ?>> items = plugin.getConfig().getMapList(path);
 
         for (Map<?, ?> map : items) {
+
             String material = (String) map.get("material");
-            int amount = (int) map.getOrDefault("amount", 1);
+
+            int amount = 1;
+            if (map.containsKey("amount")) {
+                amount = ((Number) map.get("amount")).intValue(); // 🔥 FIX
+            }
 
             player.getInventory().addItem(
                     new ItemStack(Material.valueOf(material), amount)
