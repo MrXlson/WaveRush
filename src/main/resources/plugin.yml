@@ -1,7 +1,8 @@
 name: WaveRush
-version: 1.0
 main: me.plugin.waverush.WaveRushPlugin
-api-version: 1.20
+version: 1.0
+api-version: 1.21
 
 commands:
   ma:
+    description: Arena command
