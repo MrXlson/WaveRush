@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -44,9 +45,17 @@ public class GameTask extends BukkitRunnable {
             player.sendTitle("§6VÝHRA!", "§7Zvládl jsi všechny vlny!", 10, 60, 10);
 
             if (plugin.getConfig().getBoolean("reward.enabled")) {
-                plugin.getConfig().getMapList("reward.items").forEach(map -> {
+
+                List<Map<?, ?>> rewards = plugin.getConfig().getMapList("reward.items");
+
+                for (Map<?, ?> map : rewards) {
+
                     String material = (String) map.get("material");
-                    int amount = (int) map.getOrDefault("amount", 1);
+
+                    int amount = 1;
+                    if (map.containsKey("amount")) {
+                        amount = ((Number) map.get("amount")).intValue(); // 🔥 FIX
+                    }
 
                     player.getInventory().addItem(
                             new org.bukkit.inventory.ItemStack(
@@ -54,7 +63,7 @@ public class GameTask extends BukkitRunnable {
                                     amount
                             )
                     );
-                });
+                }
             }
 
             cancel();
@@ -78,7 +87,6 @@ public class GameTask extends BukkitRunnable {
         }
 
         player.sendMessage("§eWave " + wave + " §7| " + amount + " mobů");
-
         player.sendActionBar("§eWave: " + wave + " §7| §aKilly: " + getKills(player));
 
         wave++;
