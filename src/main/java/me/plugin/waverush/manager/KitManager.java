@@ -25,19 +25,38 @@ public class KitManager {
 
         player.getInventory().clear();
 
-        if (kit.equalsIgnoreCase("warrior")) {
-            player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
-            player.getInventory().addItem(new ItemStack(Material.COOKED_BEEF, 16));
-        }
+        switch (kit.toLowerCase()) {
 
-        if (kit.equalsIgnoreCase("archer")) {
-            player.getInventory().addItem(new ItemStack(Material.BOW));
-            player.getInventory().addItem(new ItemStack(Material.ARROW, 32));
-        }
+            case "warrior":
+                player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
+                player.getInventory().addItem(new ItemStack(Material.SHIELD));
+                player.getInventory().addItem(new ItemStack(Material.COOKED_BEEF, 16));
+                break;
 
-        if (kit.equalsIgnoreCase("tank")) {
-            player.getInventory().addItem(new ItemStack(Material.DIAMOND_CHESTPLATE));
-            player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
+            case "archer":
+                player.getInventory().addItem(new ItemStack(Material.BOW));
+                player.getInventory().addItem(new ItemStack(Material.ARROW, 64));
+                player.getInventory().addItem(new ItemStack(Material.COOKED_BEEF, 8));
+                break;
+
+            case "tank":
+                player.getInventory().setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
+                player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
+                break;
+
+            case "mage":
+                player.getInventory().addItem(new ItemStack(Material.BLAZE_ROD));
+                player.getInventory().addItem(new ItemStack(Material.GOLDEN_APPLE, 3));
+                break;
+
+            case "speed":
+                player.getInventory().addItem(new ItemStack(Material.STONE_SWORD));
+                player.getInventory().addItem(new ItemStack(Material.SUGAR, 5));
+                break;
+
+            default:
+                player.getInventory().addItem(new ItemStack(Material.WOODEN_SWORD));
+                break;
         }
     }
 }
