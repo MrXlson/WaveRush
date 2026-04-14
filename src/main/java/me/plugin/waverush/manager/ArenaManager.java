@@ -3,7 +3,6 @@ package me.plugin.waverush.manager;
 import me.plugin.waverush.WaveRushPlugin;
 import me.plugin.waverush.game.GameTask;
 import me.plugin.waverush.model.Arena;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -19,8 +18,7 @@ public class ArenaManager {
 
     private final KitManager kitManager = new KitManager();
 
-    // 🏠 Lobby (změň si souřadnice!)
-    private final Location lobby = new Location(Bukkit.getWorld("world"), 0, 100, 0);
+    private Location lobby;
 
     public void createArena(String name, Arena arena) {
         arenas.put(name.toLowerCase(), arena);
@@ -28,6 +26,10 @@ public class ArenaManager {
 
     public Arena getArena(String name) {
         return arenas.get(name.toLowerCase());
+    }
+
+    public void setLobby(Location location) {
+        this.lobby = location;
     }
 
     public void joinArena(Player player, String name) {
@@ -42,10 +44,10 @@ public class ArenaManager {
 
         playing.put(player, arena);
 
-        // teleport do arény
+        // teleport
         player.teleport(arena.getPos1());
 
-        // 🎒 dá kit
+        // 🎒 kit
         kitManager.giveKit(player);
 
         // ▶️ start hry
@@ -60,7 +62,7 @@ public class ArenaManager {
         playing.remove(player);
 
         // 🔙 teleport do lobby
-        if (lobby.getWorld() != null) {
+        if (lobby != null) {
             player.teleport(lobby);
         }
 
