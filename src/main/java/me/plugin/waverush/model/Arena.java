@@ -1,5 +1,7 @@
 package me.plugin.waverush.model;
 
+import me.plugin.waverush.task.GameTask;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -9,54 +11,65 @@ import java.util.List;
 public class Arena {
 
     private final String name;
-    private final Location pos1;
-    private final Location pos2;
-
     private final List<Player> players = new ArrayList<>();
 
-    public Arena(String name, Location pos1, Location pos2) {
+    private Location spawn;
+    private GameTask gameTask;
+
+    public Arena(String name) {
         this.name = name;
-        this.pos1 = pos1;
-        this.pos2 = pos2;
+    }
+
+    public void addPlayer(Player player) {
+        players.add(player);
+
+        if (players.size() >= 1) {
+            startCountdown();
+        }
+    }
+
+    public void removePlayer(Player player) {
+        players.remove(player);
+    }
+
+    public List<Player> getPlayers() {
+        return players;
     }
 
     public String getName() {
         return name;
     }
 
-    public Location getPos1() {
-        return pos1;
+    // ========================
+    // GAME
+    // ========================
+
+    public void startCountdown() {
+        new me.plugin.waverush.task.CountdownTask(this)
+                .runTaskTimer(Bukkit.getPluginManager().getPlugin("WaveRush"), 0L, 20L);
     }
 
-    public Location getPos2() {
-        return pos2;
+    public void startGame() {
+        gameTask = new GameTask(this);
+        gameTask.runTaskTimer(
+                Bukkit.getPluginManager().getPlugin("WaveRush"),
+                0L, 40L
+        );
     }
 
-    // 🔥 ADD PLAYER
-    public void addPlayer(Player player) {
-        players.add(player);
+    public GameTask getGameTask() {
+        return gameTask;
     }
 
-    // 🔥 REMOVE PLAYER
-    public void removePlayer(Player player) {
-        players.remove(player);
+    // ========================
+    // SPAWN
+    // ========================
+
+    public void setSpawn(Location loc) {
+        this.spawn = loc;
     }
 
-    // 🔥 GET PLAYERS
-    public List<Player> getPlayers() {
-        return players;
-    }
-
-    // 🔥 END GAME
-    public void endGame(boolean win) {
-        for (Player player : players) {
-            if (win) {
-                player.sendMessage("§aVyhrál jsi!");
-            } else {
-                player.sendMessage("§cProhrál jsi!");
-            }
-        }
-
-        players.clear();
+    public Location getSpawn() {
+        return spawn;
     }
 }
