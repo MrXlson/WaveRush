@@ -32,6 +32,12 @@ public class ArenaManager {
     // ========================
 
     public boolean joinArena(Player player, String name) {
+
+        // 🔥 zabrání duplicitnímu joinu
+        if (isInArena(player)) {
+            return false;
+        }
+
         Arena arena = getArena(name);
         if (arena == null) return false;
 
@@ -40,6 +46,11 @@ public class ArenaManager {
     }
 
     public boolean joinFirstAvailable(Player player) {
+
+        if (isInArena(player)) {
+            return false;
+        }
+
         for (Arena arena : arenas.values()) {
             arena.addPlayer(player);
             return true;
@@ -81,7 +92,9 @@ public class ArenaManager {
     // ========================
 
     public void addSign(Location location) {
-        signs.add(location);
+        if (!signs.contains(location)) {
+            signs.add(location);
+        }
     }
 
     public List<Location> getSigns() {
