@@ -2,6 +2,7 @@ package me.plugin.waverush.task;
 
 import me.plugin.waverush.manager.ArenaManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -18,30 +19,37 @@ public class SignUpdateTask extends BukkitRunnable {
     public void run() {
 
         Bukkit.getWorlds().forEach(world -> {
-            world.getLoadedChunks().forEach(chunk -> {
-                for (Block block : chunk.getBlocks()) {
+            for (Chunk chunk : world.getLoadedChunks()) {
 
-                    if (!(block.getState() instanceof Sign)) continue;
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < world.getMaxHeight(); y++) {
+                        for (int z = 0; z < 16; z++) {
 
-                    Sign sign = (Sign) block.getState();
+                            Block block = chunk.getBlock(x, y, z);
 
-                    if (!sign.getLine(0).equalsIgnoreCase("[WaveRush]")) continue;
+                            if (!(block.getState() instanceof Sign)) continue;
 
-                    String arenaName = sign.getLine(1);
+                            Sign sign = (Sign) block.getState();
 
-                    int players = arenaManager.getPlayerCount(arenaName);
+                            if (!sign.getLine(0).equalsIgnoreCase("[WaveRush]")) continue;
 
-                    // 🔥 STATUS
-                    String status = "§aWAITING";
-                    if (players >= 4) status = "§cFULL";
-                    if (players > 0 && players < 4) status = "§eINGAME";
+                            String arenaName = sign.getLine(1);
 
-                    sign.setLine(2, status);
-                    sign.setLine(3, "§b" + players + " hráčů");
+                            int players = arenaManager.getPlayerCount(arenaName);
 
-                    sign.update();
+                            // 🔥 STATUS
+                            String status = "§aWAITING";
+                            if (players >= 4) status = "§cFULL";
+                            else if (players > 0) status = "§eINGAME";
+
+                            sign.setLine(2, status);
+                            sign.setLine(3, "§b" + players + " hráčů");
+
+                            sign.update();
+                        }
+                    }
                 }
-            });
+            }
         });
     }
 }
