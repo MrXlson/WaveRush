@@ -1,88 +1,123 @@
 package me.plugin.waverush.command;
 
 import me.plugin.waverush.WaveRushPlugin;
-import me.plugin.waverush.gui.KitGUI;
-import me.plugin.waverush.gui.LobbyGUI;
 import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.manager.SelectionManager;
-import me.plugin.waverush.model.Arena;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.command.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 
 public class MACommand implements CommandExecutor {
 
-    private final ArenaManager arenaManager;
-    private final SelectionManager selectionManager;
-
-    public MACommand() {
-        this.arenaManager = WaveRushPlugin.getPlugin(WaveRushPlugin.class).getArenaManager();
-        this.selectionManager = WaveRushPlugin.getPlugin(WaveRushPlugin.class).getSelectionManager();
-    }
-
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-        if (!(sender instanceof Player player)) return true;
-
-        // /ma menu
-        if (args.length == 1 && args[0].equalsIgnoreCase("menu")) {
-            LobbyGUI.open(player);
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Pouze hráč!");
             return true;
         }
 
-        // /ma kit (GUI)
-        if (args.length == 1 && args[0].equalsIgnoreCase("kit")) {
-            KitGUI.open(player);
+        Player player = (Player) sender;
+
+        WaveRushPlugin plugin = (WaveRushPlugin) Bukkit.getPluginManager().getPlugin("WaveRush");
+        ArenaManager arenaManager = plugin.getArenaManager();
+        SelectionManager selectionManager = plugin.getSelectionManager();
+
+        boolean isAdmin = player.hasPermission("waverush.admin");
+
+        if (args.length == 0) {
+            player.sendMessage("§ePoužití: /ma <menu|kit|join|create|select|list>");
             return true;
         }
 
-        // /ma select
-        if (args.length == 1 && args[0].equalsIgnoreCase("select")) {
-            player.getInventory().addItem(new ItemStack(Material.GOLDEN_HOE));
-            player.sendMessage(ChatColor.GREEN + "Dostal jsi selekční nástroj!");
-            return true;
-        }
-
-        // /ma create <name>
-        if (args.length == 2 && args[0].equalsIgnoreCase("create")) {
-
-            if (selectionManager.getPos1(player) == null || selectionManager.getPos2(player) == null) {
-                player.sendMessage(ChatColor.RED + "Musíš nastavit obě pozice!");
+        // 🔥 MENU
+        if (args[0].equalsIgnoreCase("menu")) {
+            if (!isAdmin && !player.hasPermission("waverush.menu")) {
+                player.sendMessage("§cNemáš oprávnění!");
                 return true;
             }
 
-            Arena arena = new Arena(
-                    args[1],
-                    selectionManager.getPos1(player),
-                    selectionManager.getPos2(player)
-            );
-
-            arenaManager.createArena(args[1], arena);
-
-            player.sendMessage(ChatColor.GREEN + "Arena vytvořena: " + args[1]);
+            player.performCommand("ma menu"); // pokud máš GUI jinde, uprav
             return true;
         }
 
-        // /ma join <name>
-        if (args.length == 2 && args[0].equalsIgnoreCase("join")) {
+        // 🔥 KIT
+        if (args[0].equalsIgnoreCase("kit")) {
+            if (!isAdmin && !player.hasPermission("waverush.kit")) {
+                player.sendMessage("§cNemáš oprávnění!");
+                return true;
+            }
 
-            Arena arena = arenaManager.getArena(args[1]);
+            player.performCommand("ma kit"); // případně otevři GUI přímo
+            return true;
+        }
 
-            if (arena == null) {
-                player.sendMessage(ChatColor.RED + "Arena neexistuje!");
+        // 🔥 JOIN
+        if (args[0].equalsIgnoreCase("join")) {
+            if (!isAdmin && !player.hasPermission("waverush.join")) {
+                player.sendMessage("§cNemáš oprávnění!");
+                return true;
+            }
+
+            if (args.length < 2) {
+                arenaManager.joinFirstAvailable(player);
                 return true;
             }
 
             arenaManager.joinArena(player, args[1]);
-
-            player.sendMessage(ChatColor.GREEN + "Připojen do arény: " + args[1]);
             return true;
         }
 
-        player.sendMessage(ChatColor.YELLOW + "/ma menu | /ma kit | /ma select | /ma create <name> | /ma join <name>");
+        // 🔥 CREATE
+        if (args[0].equalsIgnoreCase("create")) {
+            if (!isAdmin && !player.hasPermission("waverush.create")) {
+                player.sendMessage("§cNemáš oprávnění!");
+                return true;
+            }
+
+            if (args.length < 2) {
+                player.sendMessage("§cPoužití: /ma create <název>");
+                return true;
+            }
+
+            String name = args[1];
+
+            if (!selectionManager.hasSelection(player)) {
+                player.sendMessage("§cNejdřív použij /ma select!");
+                return true;
+            }
+
+            Location pos1 = selectionManager.getPos1(player);
+            Location pos2 = selectionManager.getPos2(player);
+
+            arenaManager.createArena(name, pos1, pos2);
+            player.sendMessage("§aAréna vytvořena: " + name);
+            return true;
+        }
+
+        // 🔥 SELECT
+        if (args[0].equalsIgnoreCase("select")) {
+            if (!isAdmin && !player.hasPermission("waverush.select")) {
+                player.sendMessage("§cNemáš oprávnění!");
+                return true;
+            }
+
+            selectionManager.giveSelectionTool(player);
+            player.sendMessage("§aDostal jsi selection tool!");
+            return true;
+        }
+
+        // 🔥 LIST
+        if (args[0].equalsIgnoreCase("list")) {
+            player.sendMessage("§eArény:");
+            arenaManager.getArenas().forEach(a ->
+                    player.sendMessage("§7- " + a.getName()));
+            return true;
+        }
+
         return true;
     }
 }
