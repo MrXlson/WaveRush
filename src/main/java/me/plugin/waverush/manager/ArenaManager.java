@@ -1,9 +1,9 @@
 package me.plugin.waverush.manager;
 
+import me.plugin.waverush.WaveRushPlugin;
 import me.plugin.waverush.model.Arena;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 
@@ -11,6 +11,11 @@ public class ArenaManager {
 
     private final Map<String, Arena> arenas = new HashMap<>();
     private final List<Location> signs = new ArrayList<>();
+    private final WaveRushPlugin plugin;
+
+    public ArenaManager(WaveRushPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     // ========================
     // ARENY
@@ -36,13 +41,13 @@ public class ArenaManager {
         Arena arena = getArena(name);
         if (arena == null) return false;
 
-        // ❌ zabrání duplicitnímu připojení
+        // ❌ duplicita
         if (arena.getPlayers().contains(player)) {
             player.sendMessage("§cUž jsi v této aréně!");
             return false;
         }
 
-        // ❌ zabrání být ve více arénách
+        // ❌ jiná aréna
         if (isInArena(player)) {
             player.sendMessage("§cUž jsi v jiné aréně!");
             return false;
@@ -50,7 +55,10 @@ public class ArenaManager {
 
         arena.addPlayer(player);
 
-        // 🔥 auto start hry
+        // 🎒 APPLY KIT
+        plugin.getKitManager().applyKit(player);
+
+        // 🔥 start hry
         if (arena.getGameTask() == null) {
             arena.startGame();
         }
@@ -66,6 +74,8 @@ public class ArenaManager {
 
             arena.addPlayer(player);
 
+            plugin.getKitManager().applyKit(player);
+
             if (arena.getGameTask() == null) {
                 arena.startGame();
             }
@@ -79,7 +89,7 @@ public class ArenaManager {
     // LEAVE
     // ========================
 
-    public void sendToLobby(Player player, JavaPlugin plugin) {
+    public void sendToLobby(Player player) {
 
         Location loc = plugin.getConfig().getLocation("lobby");
 
