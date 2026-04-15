@@ -71,7 +71,7 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            arena.setSpawnLocation(player.getLocation());
+            arena.setSpawn(player.getLocation());
 
             plugin.getConfig().set("arenas." + name + ".spawn", player.getLocation());
             plugin.saveConfig();
