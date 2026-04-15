@@ -46,28 +46,6 @@ public class MACommand implements CommandExecutor {
             return true;
         }
 
-        // 🔥 MENU
-        if (args[0].equalsIgnoreCase("menu")) {
-            if (!isAdmin && !player.hasPermission("waverush.menu")) {
-                player.sendMessage("§cNemáš oprávnění!");
-                return true;
-            }
-
-            player.performCommand("ma menu");
-            return true;
-        }
-
-        // 🔥 KIT
-        if (args[0].equalsIgnoreCase("kit")) {
-            if (!isAdmin && !player.hasPermission("waverush.kit")) {
-                player.sendMessage("§cNemáš oprávnění!");
-                return true;
-            }
-
-            player.performCommand("ma kit");
-            return true;
-        }
-
         // 🔥 JOIN
         if (args[0].equalsIgnoreCase("join")) {
             if (!isAdmin && !player.hasPermission("waverush.join")) {
