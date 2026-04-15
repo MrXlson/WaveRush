@@ -1,4 +1,4 @@
-package me.plugin.waverush.task;
+package me.plugin.waverush.game;
 
 import me.plugin.waverush.model.Arena;
 import org.bukkit.Bukkit;
