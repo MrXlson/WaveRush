@@ -1,8 +1,11 @@
 package me.plugin.waverush;
 
 import me.plugin.waverush.command.MACommand;
-import me.plugin.waverush.listener.*;
-import me.plugin.waverush.manager.*;
+import me.plugin.waverush.listener.ArenaListener;
+import me.plugin.waverush.listener.DeathListener;
+import me.plugin.waverush.manager.ArenaManager;
+import me.plugin.waverush.manager.KitManager;
+import me.plugin.waverush.manager.SelectionManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class WaveRushPlugin extends JavaPlugin {
@@ -19,15 +22,15 @@ public class WaveRushPlugin extends JavaPlugin {
         selectionManager = new SelectionManager();
         kitManager = new KitManager(this);
 
-        // Load config data
-        kitManager.loadKits();
-
         // Commands
         getCommand("ma").setExecutor(new MACommand());
 
         // Listeners
-        getServer().getPluginManager().registerEvents(new ArenaListener(selectionManager), this);
-        getServer().getPluginManager().registerEvents(new DeathListener(arenaManager), this);
+        getServer().getPluginManager().registerEvents(
+                new ArenaListener(arenaManager, selectionManager), this);
+
+        getServer().getPluginManager().registerEvents(
+                new DeathListener(), this);
 
         getLogger().info("WaveRush enabled!");
     }
@@ -37,13 +40,9 @@ public class WaveRushPlugin extends JavaPlugin {
         getLogger().info("WaveRush disabled!");
     }
 
-    // 🔥 RELOAD METHOD
+    // 🔥 RELOAD
     public void reloadPluginConfig() {
         reloadConfig();
-
-        kitManager.loadKits();
-        // pokud budeš ukládat arény do configu:
-        // arenaManager.loadArenas();
     }
 
     public ArenaManager getArenaManager() {
