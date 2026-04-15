@@ -1,67 +1,49 @@
 package me.plugin.waverush;
 
 import me.plugin.waverush.command.MACommand;
-import me.plugin.waverush.listener.ArenaListener;
-import me.plugin.waverush.listener.DeathListener;
-import me.plugin.waverush.listener.KillListener;
-import me.plugin.waverush.listener.KitListener;
-import me.plugin.waverush.listener.LobbyListener;
-import me.plugin.waverush.listener.SignListener;
-import me.plugin.waverush.manager.ArenaManager;
-import me.plugin.waverush.manager.SelectionManager;
-import me.plugin.waverush.task.SignUpdateTask;
+import me.plugin.waverush.listener.*;
+import me.plugin.waverush.manager.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class WaveRushPlugin extends JavaPlugin {
 
     private ArenaManager arenaManager;
     private SelectionManager selectionManager;
+    private KitManager kitManager;
 
     @Override
     public void onEnable() {
-
-        // 🔥 config
         saveDefaultConfig();
 
-        // 🔧 manažeři
-        this.arenaManager = new ArenaManager(this);
-        this.selectionManager = new SelectionManager();
+        arenaManager = new ArenaManager(this);
+        selectionManager = new SelectionManager();
+        kitManager = new KitManager(this);
 
-        // 📡 základní listenery
-        getServer().getPluginManager().registerEvents(
-                new ArenaListener(arenaManager, selectionManager), this);
+        // Load config data
+        kitManager.loadKits();
 
-        getServer().getPluginManager().registerEvents(
-                new KillListener(), this);
+        // Commands
+        getCommand("ma").setExecutor(new MACommand());
 
-        getServer().getPluginManager().registerEvents(
-                new DeathListener(), this);
+        // Listeners
+        getServer().getPluginManager().registerEvents(new ArenaListener(selectionManager), this);
+        getServer().getPluginManager().registerEvents(new DeathListener(arenaManager), this);
 
-        // 🎮 GUI listenery
-        getServer().getPluginManager().registerEvents(
-                new KitListener(arenaManager.getKitManager()), this);
-
-        getServer().getPluginManager().registerEvents(
-                new LobbyListener(), this);
-
-        // 🪧 cedulky
-        getServer().getPluginManager().registerEvents(
-                new SignListener(), this);
-
-        // 🔄 live update cedulek každou sekundu
-        new SignUpdateTask().runTaskTimer(this, 0L, 20L);
-
-        // ⚡ command (/ma)
-        if (getCommand("ma") != null) {
-            getCommand("ma").setExecutor(new MACommand());
-        }
-
-        getLogger().info("WaveRush zapnut!");
+        getLogger().info("WaveRush enabled!");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("WaveRush vypnut!");
+        getLogger().info("WaveRush disabled!");
+    }
+
+    // 🔥 RELOAD METHOD
+    public void reloadPluginConfig() {
+        reloadConfig();
+
+        kitManager.loadKits();
+        // pokud budeš ukládat arény do configu:
+        // arenaManager.loadArenas();
     }
 
     public ArenaManager getArenaManager() {
@@ -70,5 +52,9 @@ public class WaveRushPlugin extends JavaPlugin {
 
     public SelectionManager getSelectionManager() {
         return selectionManager;
+    }
+
+    public KitManager getKitManager() {
+        return kitManager;
     }
 }
