@@ -116,7 +116,7 @@ public class MACommand implements CommandExecutor {
         // LEAVE
         // ========================
         if (args[0].equalsIgnoreCase("leave")) {
-            arenaManager.sendToLobby(player, plugin);
+            arenaManager.sendToLobby(player);
             player.sendMessage("§cOpustil jsi arénu.");
             return true;
         }
