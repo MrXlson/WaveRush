@@ -3,6 +3,7 @@ package me.plugin.waverush.command;
 import me.plugin.waverush.WaveRushPlugin;
 import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.manager.SelectionManager;
+import me.plugin.waverush.model.Arena;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
@@ -24,10 +25,37 @@ public class MACommand implements CommandExecutor {
         if (!(sender instanceof Player player)) return true;
 
         if (args.length == 0) {
-            player.sendMessage("§cPoužij /ma join <arena>");
+            player.sendMessage("§cPoužití: /ma <join/create/list/reload>");
             return true;
         }
 
+        // ========================
+        // CREATE
+        // ========================
+        if (args[0].equalsIgnoreCase("create")) {
+
+            if (args.length < 2) {
+                player.sendMessage("§cPoužití: /ma create <název>");
+                return true;
+            }
+
+            String name = args[1];
+
+            if (arenaManager.getArena(name) != null) {
+                player.sendMessage("§cTato aréna už existuje!");
+                return true;
+            }
+
+            Arena arena = new Arena(name);
+            arenaManager.createArena(name, arena);
+
+            player.sendMessage("§aAréna vytvořena: " + name);
+            return true;
+        }
+
+        // ========================
+        // JOIN
+        // ========================
         if (args[0].equalsIgnoreCase("join")) {
 
             if (args.length < 2) {
@@ -42,17 +70,26 @@ public class MACommand implements CommandExecutor {
             } else {
                 player.sendMessage("§aPřipojen!");
             }
+            return true;
         }
 
+        // ========================
+        // LIST
+        // ========================
         if (args[0].equalsIgnoreCase("list")) {
-            for (var arena : arenaManager.getArenas()) {
+            for (Arena arena : arenaManager.getArenas()) {
                 player.sendMessage("§e" + arena.getName());
             }
+            return true;
         }
 
+        // ========================
+        // RELOAD
+        // ========================
         if (args[0].equalsIgnoreCase("reload")) {
             plugin.reloadPluginConfig();
             player.sendMessage("§aReload hotový!");
+            return true;
         }
 
         return true;
