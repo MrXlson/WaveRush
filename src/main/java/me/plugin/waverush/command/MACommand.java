@@ -30,7 +30,19 @@ public class MACommand implements CommandExecutor {
         boolean isAdmin = player.hasPermission("waverush.admin");
 
         if (args.length == 0) {
-            player.sendMessage("§ePoužití: /ma <menu|kit|join|create|select|list>");
+            player.sendMessage("§ePoužití: /ma <menu|kit|join|create|select|list|reload>");
+            return true;
+        }
+
+        // 🔥 RELOAD
+        if (args[0].equalsIgnoreCase("reload")) {
+            if (!player.hasPermission("waverush.reload")) {
+                player.sendMessage("§cNemáš oprávnění!");
+                return true;
+            }
+
+            plugin.reloadPluginConfig();
+            player.sendMessage("§aConfig byl reloadnut!");
             return true;
         }
 
@@ -41,7 +53,7 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            player.performCommand("ma menu"); // případně GUI
+            player.performCommand("ma menu");
             return true;
         }
 
@@ -52,7 +64,7 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            player.performCommand("ma kit"); // případně GUI
+            player.performCommand("ma kit");
             return true;
         }
 
@@ -94,7 +106,6 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            // 🔥 FIX PRO TVŮJ SYSTÉM
             Arena arena = new Arena(name, pos1, pos2);
             arenaManager.createArena(name, arena);
 
