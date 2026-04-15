@@ -1,80 +1,87 @@
 package me.plugin.waverush.game;
 
 import me.plugin.waverush.model.Arena;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class GameTask extends BukkitRunnable {
 
     private final Arena arena;
-    private final JavaPlugin plugin;
 
     private int wave = 0;
-    private int mobsAlive = 0;
+    private final List<LivingEntity> mobs = new ArrayList<>();
 
-    private final List<Entity> spawnedMobs = new ArrayList<>();
+    private final Map<Player, Integer> kills = new HashMap<>();
 
-    public GameTask(Arena arena, JavaPlugin plugin) {
+    public GameTask(Arena arena) {
         this.arena = arena;
-        this.plugin = plugin;
     }
 
     @Override
     public void run() {
 
-        // Pokud nikdo není v aréně → stop
+        // pokud nejsou hráči → stop
         if (arena.getPlayers().isEmpty()) {
             cancel();
             return;
         }
 
-        // Pokud nejsou mobové → další wave
-        if (mobsAlive <= 0) {
-            startNextWave();
+        // pokud nejsou mobové → další wave
+        if (mobs.isEmpty()) {
+            nextWave();
+            return;
         }
+
+        // vyčisti mrtvé moby
+        mobs.removeIf(mob -> mob == null || mob.isDead());
     }
 
-    private void startNextWave() {
+    private void nextWave() {
         wave++;
 
-        int amount = 3 + (wave * 2); // scaling
-
-        mobsAlive = amount;
-
-        arena.broadcast("§aVlna §e" + wave + " §a(" + amount + " mobů)");
+        int amount = wave * 2;
 
         for (int i = 0; i < amount; i++) {
-            LivingEntity mob = arena.spawnMob(); // MUSÍŠ mít v Arena.java
+            LivingEntity mob = arena.spawnMob();
             if (mob != null) {
-                spawnedMobs.add(mob);
+                mobs.add(mob);
             }
         }
-    }
 
-    // 🔥 TOTO TI CHYBĚLO
-    public void mobKilled() {
-        mobsAlive--;
-
-        if (mobsAlive <= 0) {
-            arena.broadcast("§aVlna dokončena!");
+        // info hráčům
+        for (Player p : arena.getPlayers()) {
+            p.sendMessage("§aWave §e" + wave + " §aspawnuta!");
         }
     }
+
+    // ========================
+    // KILLS
+    // ========================
+
+    public void addKill(Player player) {
+        kills.put(player, kills.getOrDefault(player, 0) + 1);
+    }
+
+    public int getKills(Player player) {
+        return kills.getOrDefault(player, 0);
+    }
+
+    public void mobKilled(LivingEntity mob) {
+        mobs.remove(mob);
+    }
+
+    // ========================
+    // INFO
+    // ========================
 
     public int getWave() {
         return wave;
     }
 
-    public int getMobsAlive() {
-        return mobsAlive;
-    }
-
-    public List<Entity> getSpawnedMobs() {
-        return spawnedMobs;
+    public int getRemainingMobs() {
+        return mobs.size();
     }
 }
