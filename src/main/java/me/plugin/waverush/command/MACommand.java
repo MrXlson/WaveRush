@@ -3,6 +3,7 @@ package me.plugin.waverush.command;
 import me.plugin.waverush.WaveRushPlugin;
 import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.manager.SelectionManager;
+import me.plugin.waverush.model.Arena;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -40,7 +41,7 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            player.performCommand("ma menu"); // pokud máš GUI jinde, uprav
+            player.performCommand("ma menu");
             return true;
         }
 
@@ -51,7 +52,7 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            player.performCommand("ma kit"); // případně otevři GUI přímo
+            player.performCommand("ma kit");
             return true;
         }
 
@@ -63,7 +64,7 @@ public class MACommand implements CommandExecutor {
             }
 
             if (args.length < 2) {
-                arenaManager.joinFirstAvailable(player);
+                player.sendMessage("§cPoužití: /ma join <arena>");
                 return true;
             }
 
@@ -85,13 +86,13 @@ public class MACommand implements CommandExecutor {
 
             String name = args[1];
 
-            if (!selectionManager.hasSelection(player)) {
-                player.sendMessage("§cNejdřív použij /ma select!");
-                return true;
-            }
-
             Location pos1 = selectionManager.getPos1(player);
             Location pos2 = selectionManager.getPos2(player);
+
+            if (pos1 == null || pos2 == null) {
+                player.sendMessage("§cMusíš označit 2 pozice!");
+                return true;
+            }
 
             arenaManager.createArena(name, pos1, pos2);
             player.sendMessage("§aAréna vytvořena: " + name);
@@ -105,16 +106,18 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            selectionManager.giveSelectionTool(player);
-            player.sendMessage("§aDostal jsi selection tool!");
+            player.sendMessage("§aPoužij motyku pro označení pozic!");
             return true;
         }
 
         // 🔥 LIST
         if (args[0].equalsIgnoreCase("list")) {
             player.sendMessage("§eArény:");
-            arenaManager.getArenas().forEach(a ->
-                    player.sendMessage("§7- " + a.getName()));
+
+            for (Arena arena : arenaManager.getArenas().values()) {
+                player.sendMessage("§7- " + arena.getName());
+            }
+
             return true;
         }
 
