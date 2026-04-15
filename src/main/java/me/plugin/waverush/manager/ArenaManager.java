@@ -20,12 +20,12 @@ public class ArenaManager {
         this.plugin = plugin;
     }
 
-    // 🔥 CREATE
+    // CREATE
     public void createArena(String name, Arena arena) {
         arenas.put(name, arena);
     }
 
-    // 🔥 JOIN
+    // JOIN
     public void joinArena(Player player, String name) {
         Arena arena = arenas.get(name);
 
@@ -45,12 +45,12 @@ public class ArenaManager {
         player.sendMessage("§aPřipojen do arény: " + name);
     }
 
-    // 🔥 GET ARENA BY PLAYER
+    // GET ARENA BY PLAYER
     public Arena getArena(Player player) {
         return playerArena.get(player);
     }
 
-    // 🔥 REMOVE PLAYER
+    // REMOVE PLAYER
     public void removePlayer(Player player) {
         Arena arena = playerArena.get(player);
 
@@ -60,7 +60,14 @@ public class ArenaManager {
         }
     }
 
-    // 🔥 LOBBY TELEPORT
+    // PLAYER COUNT (🔥 FIX)
+    public int getPlayerCount(String arenaName) {
+        Arena arena = arenas.get(arenaName);
+        if (arena == null) return 0;
+        return arena.getPlayers().size();
+    }
+
+    // LOBBY TELEPORT
     public void sendToLobby(Player player) {
         if (plugin.getConfig().contains("lobby")) {
 
