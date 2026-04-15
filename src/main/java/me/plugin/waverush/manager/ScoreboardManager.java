@@ -1,22 +1,19 @@
 package me.plugin.waverush.manager;
 
-import me.plugin.waverush.game.GameTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 public class ScoreboardManager {
 
-    public static void update(Player player, int wave) {
+    public void setScoreboard(Player player, int wave) {
 
-        org.bukkit.scoreboard.ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard board = manager.getNewScoreboard();
+        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective obj = board.registerNewObjective("wr", "dummy", "§6WaveRush");
 
-        Objective obj = board.registerNewObjective("wave", "dummy", "§6WaveRush");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        obj.getScore("§7Wave: §e" + wave).setScore(2);
-        obj.getScore("§7Kills: §a" + GameTask.getKills(player)).setScore(1);
+        obj.getScore("§eVlna: §f" + wave).setScore(1);
 
         player.setScoreboard(board);
     }
