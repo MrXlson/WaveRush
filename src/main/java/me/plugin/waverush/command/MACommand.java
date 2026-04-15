@@ -41,7 +41,7 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            player.performCommand("ma menu");
+            player.performCommand("ma menu"); // případně GUI
             return true;
         }
 
@@ -52,7 +52,7 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            player.performCommand("ma kit");
+            player.performCommand("ma kit"); // případně GUI
             return true;
         }
 
@@ -94,7 +94,10 @@ public class MACommand implements CommandExecutor {
                 return true;
             }
 
-            arenaManager.createArena(name, pos1, pos2);
+            // 🔥 FIX PRO TVŮJ SYSTÉM
+            Arena arena = new Arena(name, pos1, pos2);
+            arenaManager.createArena(name, arena);
+
             player.sendMessage("§aAréna vytvořena: " + name);
             return true;
         }
