@@ -3,6 +3,7 @@ package me.plugin.waverush.manager;
 import me.plugin.waverush.model.Arena;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 
@@ -32,27 +33,27 @@ public class ArenaManager {
     // ========================
 
     public boolean joinArena(Player player, String name) {
-
-        // 🔥 zabrání duplicitnímu joinu
-        if (isInArena(player)) {
-            return false;
-        }
-
         Arena arena = getArena(name);
         if (arena == null) return false;
 
         arena.addPlayer(player);
+
+        // 🔥 auto start hry
+        if (arena.getGameTask() == null) {
+            arena.startGame();
+        }
+
         return true;
     }
 
     public boolean joinFirstAvailable(Player player) {
-
-        if (isInArena(player)) {
-            return false;
-        }
-
         for (Arena arena : arenas.values()) {
             arena.addPlayer(player);
+
+            if (arena.getGameTask() == null) {
+                arena.startGame();
+            }
+
             return true;
         }
         return false;
@@ -62,11 +63,17 @@ public class ArenaManager {
     // LEAVE
     // ========================
 
-    public void sendToLobby(Player player) {
+    public void sendToLobby(Player player, JavaPlugin plugin) {
+
+        Location loc = plugin.getConfig().getLocation("lobby");
+
+        if (loc != null) {
+            player.teleport(loc);
+        }
+
         for (Arena arena : arenas.values()) {
             if (arena.getPlayers().contains(player)) {
                 arena.removePlayer(player);
-                return;
             }
         }
     }
@@ -92,9 +99,7 @@ public class ArenaManager {
     // ========================
 
     public void addSign(Location location) {
-        if (!signs.contains(location)) {
-            signs.add(location);
-        }
+        signs.add(location);
     }
 
     public List<Location> getSigns() {
