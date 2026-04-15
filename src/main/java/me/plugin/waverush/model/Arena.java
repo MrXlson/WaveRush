@@ -1,5 +1,6 @@
 package me.plugin.waverush.model;
 
+import me.plugin.waverush.game.GameTask;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.LivingEntity;
