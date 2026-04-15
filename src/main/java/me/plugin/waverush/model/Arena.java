@@ -1,29 +1,23 @@
 package me.plugin.waverush.model;
 
-import me.plugin.waverush.game.GameTask;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.EntityType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Arena {
 
     private final String name;
-    private final Location spawn;
-
     private final List<Player> players = new ArrayList<>();
 
-    // GAME STATE
-    private boolean running = false;
-    private int wave = 0;
+    private Location spawnLocation;
 
-    // GAME TASK
     private GameTask gameTask;
 
-    public Arena(String name, Location spawn) {
+    public Arena(String name) {
         this.name = name;
-        this.spawn = spawn;
     }
 
     // ========================
@@ -31,10 +25,7 @@ public class Arena {
     // ========================
 
     public void addPlayer(Player player) {
-        if (!players.contains(player)) {
-            players.add(player);
-            player.teleport(spawn);
-        }
+        players.add(player);
     }
 
     public void removePlayer(Player player) {
@@ -45,89 +36,58 @@ public class Arena {
         return players;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    // ========================
+    // SPAWN
+    // ========================
+
+    public void setSpawnLocation(Location loc) {
+        this.spawnLocation = loc;
+    }
+
+    public Location getSpawnLocation() {
+        return spawnLocation;
+    }
+
+    public LivingEntity spawnMob() {
+        if (spawnLocation == null) return null;
+
+        return (LivingEntity) spawnLocation.getWorld().spawnEntity(
+                spawnLocation,
+                EntityType.ZOMBIE
+        );
+    }
+
     // ========================
     // GAME
     // ========================
 
     public void startGame() {
-        if (running) return;
+        if (gameTask != null) return;
 
-        running = true;
-        wave = 1;
-
-        broadcast("§aHra začíná! Wave 1");
+        gameTask = new GameTask(this);
+        gameTask.runTaskTimer(
+                org.bukkit.Bukkit.getPluginManager().getPlugin("WaveRush"),
+                0L,
+                20L
+        );
     }
 
     public void stopGame() {
-        running = false;
-        wave = 0;
+        if (gameTask == null) return;
 
-        if (gameTask != null) {
-            gameTask.cancel();
-            gameTask = null;
-        }
-
-        broadcast("§cHra skončila!");
-    }
-
-    public boolean isRunning() {
-        return running;
-    }
-
-    public int getWave() {
-        return wave;
-    }
-
-    public void nextWave() {
-        wave++;
-        broadcast("§eDalší wave: " + wave);
-    }
-
-    // ========================
-    // GAME TASK
-    // ========================
-
-    public void setGameTask(GameTask task) {
-        this.gameTask = task;
+        gameTask.cancel();
+        gameTask = null;
     }
 
     public GameTask getGameTask() {
         return gameTask;
     }
 
-    // ========================
-    // MOB / KILLS
-    // ========================
-
-    private int mobsAlive = 0;
-
-    public void setMobsAlive(int amount) {
-        this.mobsAlive = amount;
-    }
-
-    public void mobKilled() {
-        mobsAlive--;
-
-        if (mobsAlive <= 0) {
-            nextWave();
-        }
-    }
-
-    // ========================
-    // UTILS
-    // ========================
-
-    public void broadcast(String msg) {
-        for (Player p : players) {
-            p.sendMessage(msg);
-        }
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Location getSpawn() {
-        return spawn;
+    public void setGameTask(GameTask task) {
+        this.gameTask = task;
     }
 }
