@@ -9,7 +9,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 public class ArenaListener implements Listener {
@@ -24,28 +23,31 @@ public class ArenaListener implements Listener {
 
     @EventHandler
     public void onSelect(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
+        Player player = e.getPlayer();
 
-        ItemStack item = e.getItem();
-        if (item == null || item.getType() != Material.GOLDEN_HOE) return;
+        // musí držet motyku
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (item == null || item.getType() != Material.WOODEN_HOE) return;
 
-        // 🔥 FIX – ignoruje offhand (druhá ruka)
-        if (e.getHand() != EquipmentSlot.HAND) return;
-
-        if (e.getClickedBlock() == null) return;
+        // jen admin
+        if (!player.hasPermission("waverush.select")) return;
 
         Action action = e.getAction();
 
+        // LEFT CLICK = POS1
         if (action == Action.LEFT_CLICK_BLOCK) {
-            selectionManager.setPos1(p, e.getClickedBlock().getLocation());
-            p.sendMessage(ChatColor.GREEN + "Pozice 1 nastavena!");
             e.setCancelled(true);
+
+            selectionManager.setPos1(player, e.getClickedBlock().getLocation());
+            player.sendMessage(ChatColor.GREEN + "Pos1 nastaven!");
         }
 
-        else if (action == Action.RIGHT_CLICK_BLOCK) {
-            selectionManager.setPos2(p, e.getClickedBlock().getLocation());
-            p.sendMessage(ChatColor.AQUA + "Pozice 2 nastavena!");
+        // RIGHT CLICK = POS2
+        if (action == Action.RIGHT_CLICK_BLOCK) {
             e.setCancelled(true);
+
+            selectionManager.setPos2(player, e.getClickedBlock().getLocation());
+            player.sendMessage(ChatColor.GREEN + "Pos2 nastaven!");
         }
     }
 }
