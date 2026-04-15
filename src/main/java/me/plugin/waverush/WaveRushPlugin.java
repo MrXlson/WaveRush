@@ -30,7 +30,7 @@ public class WaveRushPlugin extends JavaPlugin {
                 new ArenaListener(arenaManager, selectionManager), this);
 
         getServer().getPluginManager().registerEvents(
-                new DeathListener(), this);
+                new DeathListener(arenaManager), this);
 
         getLogger().info("WaveRush enabled!");
     }
@@ -40,7 +40,6 @@ public class WaveRushPlugin extends JavaPlugin {
         getLogger().info("WaveRush disabled!");
     }
 
-    // 🔥 RELOAD
     public void reloadPluginConfig() {
         reloadConfig();
     }
