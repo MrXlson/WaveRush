@@ -1,20 +1,20 @@
 package me.plugin.waverush.model;
 
 import me.plugin.waverush.game.GameTask;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.EntityType;
 
 import java.util.*;
 
 public class Arena {
 
     private final String name;
+
     private final List<Player> players = new ArrayList<>();
+    private final Map<Player, Integer> kills = new HashMap<>();
 
     private Location spawnLocation;
-
     private GameTask gameTask;
 
     public Arena(String name) {
@@ -22,44 +22,51 @@ public class Arena {
     }
 
     // ========================
-    // PLAYERS
+    // INFO
     // ========================
 
-    public void addPlayer(Player player) {
-        players.add(player);
-    }
-
-    public void removePlayer(Player player) {
-        players.remove(player);
+    public String getName() {
+        return name;
     }
 
     public List<Player> getPlayers() {
         return players;
     }
 
-    public String getName() {
-        return name;
+    // ========================
+    // PLAYER MANAGEMENT
+    // ========================
+
+    public void addPlayer(Player player) {
+        players.add(player);
+
+        // teleport na spawn
+        if (spawnLocation != null) {
+            player.teleport(spawnLocation);
+        }
+    }
+
+    public void removePlayer(Player player) {
+        players.remove(player);
+        kills.remove(player);
+
+        // pokud nikdo nezbyde → stop hra
+        if (players.isEmpty() && gameTask != null) {
+            gameTask.cancel();
+            gameTask = null;
+        }
     }
 
     // ========================
     // SPAWN
     // ========================
 
-    public void setSpawnLocation(Location loc) {
-        this.spawnLocation = loc;
+    public void setSpawnLocation(Location location) {
+        this.spawnLocation = location;
     }
 
     public Location getSpawnLocation() {
         return spawnLocation;
-    }
-
-    public LivingEntity spawnMob() {
-        if (spawnLocation == null) return null;
-
-        return (LivingEntity) spawnLocation.getWorld().spawnEntity(
-                spawnLocation,
-                EntityType.ZOMBIE
-        );
     }
 
     // ========================
@@ -67,28 +74,35 @@ public class Arena {
     // ========================
 
     public void startGame() {
+
         if (gameTask != null) return;
 
-        gameTask = new GameTask(this);
+        this.gameTask = new GameTask(this);
+
         gameTask.runTaskTimer(
-                org.bukkit.Bukkit.getPluginManager().getPlugin("WaveRush"),
-                0L,
+                Bukkit.getPluginManager().getPlugin("WaveRush"),
+                20L,
                 20L
         );
-    }
-
-    public void stopGame() {
-        if (gameTask == null) return;
-
-        gameTask.cancel();
-        gameTask = null;
     }
 
     public GameTask getGameTask() {
         return gameTask;
     }
 
-    public void setGameTask(GameTask task) {
-        this.gameTask = task;
+    // ========================
+    // KILLS
+    // ========================
+
+    public void addKill(Player player) {
+        kills.put(player, kills.getOrDefault(player, 0) + 1);
+    }
+
+    public int getKills(Player player) {
+        return kills.getOrDefault(player, 0);
+    }
+
+    public Map<Player, Integer> getAllKills() {
+        return kills;
     }
 }
