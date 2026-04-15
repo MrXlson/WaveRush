@@ -1,9 +1,7 @@
 package me.plugin.waverush;
 
 import me.plugin.waverush.command.MACommand;
-import me.plugin.waverush.listener.ArenaListener;
-import me.plugin.waverush.listener.DeathListener;
-import me.plugin.waverush.listener.SignListener;
+import me.plugin.waverush.listener.*;
 import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.manager.KitManager;
 import me.plugin.waverush.manager.SelectionManager;
@@ -20,23 +18,20 @@ public class WaveRushPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        // 🔥 INIT
-        this.arenaManager = new ArenaManager();
+        // INIT
+        this.arenaManager = new ArenaManager(this);
         this.selectionManager = new SelectionManager();
-        this.kitManager = new KitManager(); // ✅ FIX
+        this.kitManager = new KitManager();
 
-        // 🔥 CONFIG
+        // CONFIG
         saveDefaultConfig();
 
-        // 🔥 KITY
-        kitManager.loadKits();
-
-        // 🔥 COMMAND
+        // COMMAND
         getCommand("ma").setExecutor(
                 new MACommand(arenaManager, selectionManager, this)
         );
 
-        // 🔥 LISTENERS
+        // LISTENERS
         Bukkit.getPluginManager().registerEvents(
                 new ArenaListener(arenaManager, selectionManager), this
         );
@@ -49,23 +44,29 @@ public class WaveRushPlugin extends JavaPlugin {
                 new SignListener(arenaManager), this
         );
 
-        // 🔥 TASK (1s update cedulek)
+        Bukkit.getPluginManager().registerEvents(
+                new KitSignListener(kitManager), this
+        );
+
+        Bukkit.getPluginManager().registerEvents(
+                new KillListener(arenaManager), this
+        );
+
+        // TASK
         new SignUpdateTask(arenaManager).runTaskTimer(this, 20L, 20L);
 
-        getLogger().info("WaveRush plugin byl zapnut!");
+        getLogger().info("WaveRush plugin zapnut!");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("WaveRush plugin byl vypnut!");
+        getLogger().info("WaveRush plugin vypnut!");
     }
 
-    // 🔥 /ma reload
     public void reloadPluginConfig() {
         reloadConfig();
     }
 
-    // 🔥 GETTERY
     public ArenaManager getArenaManager() {
         return arenaManager;
     }
