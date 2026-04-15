@@ -14,32 +14,43 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class WaveRushPlugin extends JavaPlugin {
 
     private ArenaManager arenaManager;
-    private KitManager kitManager;
     private SelectionManager selectionManager;
+    private KitManager kitManager;
 
     @Override
     public void onEnable() {
 
-        // 🔥 INIT
+        // 🔥 INIT (bez parametrů – FIX constructor error)
         this.arenaManager = new ArenaManager();
-        this.kitManager = new KitManager(this);
         this.selectionManager = new SelectionManager();
+        this.kitManager = new KitManager(this);
 
         // 🔥 CONFIG
         saveDefaultConfig();
 
-        // 🔥 LOAD KITS
+        // 🔥 KITY (FIX loadKits error – musí existovat prázdná metoda)
         kitManager.loadKits();
 
         // 🔥 COMMAND
-        getCommand("ma").setExecutor(new MACommand(arenaManager, selectionManager, this));
+        getCommand("ma").setExecutor(
+                new MACommand(arenaManager, selectionManager, this)
+        );
 
-        // 🔥 LISTENERS
-        Bukkit.getPluginManager().registerEvents(new ArenaListener(arenaManager), this);
-        Bukkit.getPluginManager().registerEvents(new DeathListener(arenaManager), this);
-        Bukkit.getPluginManager().registerEvents(new SignListener(arenaManager), this);
+        // 🔥 LISTENERS (FIX constructor mismatch)
+        Bukkit.getPluginManager().registerEvents(
+                new ArenaListener(arenaManager, selectionManager), this
+        );
 
-        // 🔥 TASKS (cedulky update každou sekundu)
+        Bukkit.getPluginManager().registerEvents(
+                new DeathListener(arenaManager), this
+        );
+
+        // Pokud máš SignListener → nech, jinak klidně smaž
+        Bukkit.getPluginManager().registerEvents(
+                new SignListener(arenaManager), this
+        );
+
+        // 🔥 TASK (už NEPROCHÁZÍ svět → safe)
         new SignUpdateTask(arenaManager).runTaskTimer(this, 20L, 20L);
 
         getLogger().info("WaveRush plugin byl zapnut!");
@@ -50,16 +61,21 @@ public class WaveRushPlugin extends JavaPlugin {
         getLogger().info("WaveRush plugin byl vypnut!");
     }
 
-    // 🔥 GETTERY (pokud někde používáš)
+    // 🔥 FIX pro /ma reload
+    public void reloadPluginConfig() {
+        reloadConfig();
+    }
+
+    // 🔥 GETTERY (pro další classy pokud používáš)
     public ArenaManager getArenaManager() {
         return arenaManager;
     }
 
-    public KitManager getKitManager() {
-        return kitManager;
-    }
-
     public SelectionManager getSelectionManager() {
         return selectionManager;
+    }
+
+    public KitManager getKitManager() {
+        return kitManager;
     }
 }
