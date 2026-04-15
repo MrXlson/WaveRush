@@ -25,7 +25,7 @@ public class MACommand implements CommandExecutor {
         if (!(sender instanceof Player player)) return true;
 
         if (args.length == 0) {
-            player.sendMessage("§cPoužití: /ma <join/create/list/reload>");
+            player.sendMessage("§cPoužití: /ma <join/create/setspawn/setlobby/list/reload>");
             return true;
         }
 
@@ -54,6 +54,45 @@ public class MACommand implements CommandExecutor {
         }
 
         // ========================
+        // SETSPAWN
+        // ========================
+        if (args[0].equalsIgnoreCase("setspawn")) {
+
+            if (args.length < 2) {
+                player.sendMessage("§cPoužití: /ma setspawn <arena>");
+                return true;
+            }
+
+            String name = args[1];
+            Arena arena = arenaManager.getArena(name);
+
+            if (arena == null) {
+                player.sendMessage("§cAréna neexistuje!");
+                return true;
+            }
+
+            arena.setSpawnLocation(player.getLocation());
+
+            plugin.getConfig().set("arenas." + name + ".spawn", player.getLocation());
+            plugin.saveConfig();
+
+            player.sendMessage("§aSpawn nastaven pro arénu: " + name);
+            return true;
+        }
+
+        // ========================
+        // SETLOBBY
+        // ========================
+        if (args[0].equalsIgnoreCase("setlobby")) {
+
+            plugin.getConfig().set("lobby", player.getLocation());
+            plugin.saveConfig();
+
+            player.sendMessage("§aLobby nastaveno!");
+            return true;
+        }
+
+        // ========================
         // JOIN
         // ========================
         if (args[0].equalsIgnoreCase("join")) {
@@ -70,6 +109,15 @@ public class MACommand implements CommandExecutor {
             } else {
                 player.sendMessage("§aPřipojen!");
             }
+            return true;
+        }
+
+        // ========================
+        // LEAVE
+        // ========================
+        if (args[0].equalsIgnoreCase("leave")) {
+            arenaManager.sendToLobby(player, plugin);
+            player.sendMessage("§cOpustil jsi arénu.");
             return true;
         }
 
