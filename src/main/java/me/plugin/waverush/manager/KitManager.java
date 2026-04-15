@@ -1,112 +1,78 @@
 package me.plugin.waverush.manager;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class KitManager {
 
-    private final Map<String, ItemStack[]> kits = new HashMap<>();
     private final Map<Player, String> selectedKit = new HashMap<>();
 
-    private final FileConfiguration config;
-
-    public KitManager(FileConfiguration config) {
-        this.config = config;
-    }
-
     // ========================
-    // LOAD KITS (FIX ERROR)
+    // LOAD KITS (fix error)
     // ========================
-
     public void loadKits() {
-        kits.clear();
-
-        if (!config.contains("kits")) {
-            Bukkit.getLogger().warning("[WaveRush] No kits found in config!");
-            return;
-        }
-
-        for (String kitName : config.getConfigurationSection("kits").getKeys(false)) {
-
-            List<String> items = config.getStringList("kits." + kitName + ".items");
-
-            ItemStack[] kitItems = new ItemStack[items.size()];
-
-            for (int i = 0; i < items.size(); i++) {
-                String matName = items.get(i);
-
-                try {
-                    Material mat = Material.valueOf(matName.toUpperCase());
-                    kitItems[i] = new ItemStack(mat);
-                } catch (Exception e) {
-                    Bukkit.getLogger().warning("[WaveRush] Invalid material in kit " + kitName + ": " + matName);
-                }
-            }
-
-            kits.put(kitName.toLowerCase(), kitItems);
-        }
-
-        Bukkit.getLogger().info("[WaveRush] Kits loaded: " + kits.size());
+        // zatím prázdné (můžeš napojit na config později)
     }
 
     // ========================
-    // GIVE KIT
+    // SET KIT
     // ========================
+    public void setKit(Player player, String kit) {
+        selectedKit.put(player, kit);
+    }
 
-    public void giveKit(Player player) {
-        String kitName = selectedKit.get(player);
+    // ========================
+    // GET KIT
+    // ========================
+    public String getKit(Player player) {
+        return selectedKit.getOrDefault(player, "none");
+    }
 
-        if (kitName == null) {
-            player.sendMessage("§cNemáš vybraný kit!");
-            return;
-        }
-
-        ItemStack[] items = kits.get(kitName.toLowerCase());
-
-        if (items == null) {
-            player.sendMessage("§cKit neexistuje!");
-            return;
-        }
+    // ========================
+    // APPLY KIT
+    // ========================
+    public void applyKit(Player player) {
+        String kit = getKit(player);
 
         player.getInventory().clear();
 
-        for (ItemStack item : items) {
-            if (item != null) {
-                player.getInventory().addItem(item);
-            }
+        switch (kit.toLowerCase()) {
+
+            case "warrior":
+                player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
+                player.getInventory().addItem(new ItemStack(Material.SHIELD));
+                break;
+
+            case "archer":
+                player.getInventory().addItem(new ItemStack(Material.BOW));
+                player.getInventory().addItem(new ItemStack(Material.ARROW, 64));
+                break;
+
+            case "mage":
+                player.getInventory().addItem(new ItemStack(Material.BLAZE_ROD));
+                break;
+
+            default:
+                // žádný kit
+                break;
         }
     }
 
     // ========================
-    // SELECT KIT
+    // HAS KIT
     // ========================
-
-    public void selectKit(Player player, String kitName) {
-        if (!kits.containsKey(kitName.toLowerCase())) {
-            player.sendMessage("§cTento kit neexistuje!");
-            return;
-        }
-
-        selectedKit.put(player, kitName.toLowerCase());
-        player.sendMessage("§aVybral jsi kit: §e" + kitName);
-    }
-
     public boolean hasKit(Player player) {
-        return selectedKit.containsKey(player);
+        return selectedKit.containsKey(player) && !selectedKit.get(player).equalsIgnoreCase("none");
     }
 
     // ========================
-    // GETTERS
+    // REMOVE (optional)
     // ========================
-
-    public Map<String, ItemStack[]> getKits() {
-        return kits;
+    public void remove(Player player) {
+        selectedKit.remove(player);
     }
 }
