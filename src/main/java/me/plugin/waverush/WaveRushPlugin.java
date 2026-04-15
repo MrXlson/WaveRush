@@ -20,15 +20,15 @@ public class WaveRushPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        // 🔥 INIT (bez parametrů – FIX constructor error)
+        // 🔥 INIT
         this.arenaManager = new ArenaManager();
         this.selectionManager = new SelectionManager();
-        this.kitManager = new KitManager(this);
+        this.kitManager = new KitManager(); // ✅ FIX
 
         // 🔥 CONFIG
         saveDefaultConfig();
 
-        // 🔥 KITY (FIX loadKits error – musí existovat prázdná metoda)
+        // 🔥 KITY
         kitManager.loadKits();
 
         // 🔥 COMMAND
@@ -36,7 +36,7 @@ public class WaveRushPlugin extends JavaPlugin {
                 new MACommand(arenaManager, selectionManager, this)
         );
 
-        // 🔥 LISTENERS (FIX constructor mismatch)
+        // 🔥 LISTENERS
         Bukkit.getPluginManager().registerEvents(
                 new ArenaListener(arenaManager, selectionManager), this
         );
@@ -45,12 +45,11 @@ public class WaveRushPlugin extends JavaPlugin {
                 new DeathListener(arenaManager), this
         );
 
-        // Pokud máš SignListener → nech, jinak klidně smaž
         Bukkit.getPluginManager().registerEvents(
                 new SignListener(arenaManager), this
         );
 
-        // 🔥 TASK (už NEPROCHÁZÍ svět → safe)
+        // 🔥 TASK (1s update cedulek)
         new SignUpdateTask(arenaManager).runTaskTimer(this, 20L, 20L);
 
         getLogger().info("WaveRush plugin byl zapnut!");
@@ -61,12 +60,12 @@ public class WaveRushPlugin extends JavaPlugin {
         getLogger().info("WaveRush plugin byl vypnut!");
     }
 
-    // 🔥 FIX pro /ma reload
+    // 🔥 /ma reload
     public void reloadPluginConfig() {
         reloadConfig();
     }
 
-    // 🔥 GETTERY (pro další classy pokud používáš)
+    // 🔥 GETTERY
     public ArenaManager getArenaManager() {
         return arenaManager;
     }
