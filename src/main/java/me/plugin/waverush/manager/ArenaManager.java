@@ -36,6 +36,18 @@ public class ArenaManager {
         Arena arena = getArena(name);
         if (arena == null) return false;
 
+        // ❌ zabrání duplicitnímu připojení
+        if (arena.getPlayers().contains(player)) {
+            player.sendMessage("§cUž jsi v této aréně!");
+            return false;
+        }
+
+        // ❌ zabrání být ve více arénách
+        if (isInArena(player)) {
+            player.sendMessage("§cUž jsi v jiné aréně!");
+            return false;
+        }
+
         arena.addPlayer(player);
 
         // 🔥 auto start hry
@@ -48,6 +60,10 @@ public class ArenaManager {
 
     public boolean joinFirstAvailable(Player player) {
         for (Arena arena : arenas.values()) {
+
+            if (arena.getPlayers().contains(player)) return false;
+            if (isInArena(player)) return false;
+
             arena.addPlayer(player);
 
             if (arena.getGameTask() == null) {
