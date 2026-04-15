@@ -1,6 +1,7 @@
 package me.plugin.waverush.model;
 
 import me.plugin.waverush.game.GameTask;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -18,6 +19,8 @@ public class Arena {
     private final List<LivingEntity> mobs = new ArrayList<>();
 
     private GameTask gameTask;
+
+    private boolean running = false;
 
     public Arena(String name) {
         this.name = name;
@@ -79,5 +82,62 @@ public class Arena {
 
     public GameTask getGameTask() {
         return gameTask;
+    }
+
+    // 🚀 START GAME
+    public void startGame() {
+
+        if (running) return;
+
+        if (spawn == null) {
+            broadcast("§cSpawn není nastaven!");
+            return;
+        }
+
+        running = true;
+
+        for (Player player : players) {
+            player.teleport(spawn);
+            player.sendMessage("§aHra začíná!");
+        }
+
+        gameTask = new GameTask(this);
+        gameTask.runTaskTimer(Bukkit.getPluginManager().getPlugin("WaveRush"), 0L, 20L);
+    }
+
+    // 🛑 STOP GAME
+    public void stopGame() {
+
+        running = false;
+
+        if (gameTask != null) {
+            gameTask.cancel();
+        }
+
+        for (LivingEntity mob : mobs) {
+            mob.remove();
+        }
+
+        mobs.clear();
+
+        for (Player player : players) {
+            if (lobby != null) {
+                player.teleport(lobby);
+            }
+            player.sendMessage("§cHra skončila!");
+        }
+
+        players.clear();
+    }
+
+    // 📢 MESSAGE
+    public void broadcast(String msg) {
+        for (Player player : players) {
+            player.sendMessage(msg);
+        }
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 }
