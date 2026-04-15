@@ -1,10 +1,10 @@
 package me.plugin.waverush.listener;
 
-import me.plugin.waverush.game.GameTask;
 import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.model.Arena;
+import me.plugin.waverush.game.GameTask;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Monster;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -18,15 +18,15 @@ public class KillListener implements Listener {
     }
 
     @EventHandler
-    public void onMobKill(EntityDeathEvent e) {
+    public void onKill(EntityDeathEvent event) {
 
-        // 🔥 kontrola že killer je hráč
-        if (!(e.getEntity().getKiller() instanceof Player player)) return;
+        // 🔥 TADY JE TEN FIX
+        LivingEntity entity = event.getEntity();
 
-        // 🔥 jen mobky (ne hráči)
-        if (!(e.getEntity() instanceof Monster)) return;
+        if (!(entity.getKiller() instanceof Player)) return;
 
-        // 🔥 najdi arénu hráče
+        Player player = entity.getKiller();
+
         for (Arena arena : arenaManager.getArenas()) {
 
             if (!arena.getPlayers().contains(player)) continue;
@@ -34,13 +34,10 @@ public class KillListener implements Listener {
             GameTask gameTask = arena.getGameTask();
             if (gameTask == null) return;
 
-            // 🔥 přičti kill
             gameTask.addKill(player);
-
-            // 🔥 odečti moba z wave
             gameTask.mobKilled(entity);
 
-            return;
+            break;
         }
     }
 }
