@@ -38,7 +38,7 @@ public class KillListener implements Listener {
             gameTask.addKill(player);
 
             // 🔥 odečti moba z wave
-            gameTask.mobKilled();
+            gameTask.mobKilled(entity);
 
             return;
         }
