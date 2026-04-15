@@ -1,8 +1,38 @@
 name: WaveRush
-main: me.plugin.waverush.WaveRushPlugin
 version: 1.0
+main: me.plugin.waverush.WaveRushPlugin
 api-version: 1.21
 
 commands:
   ma:
-    description: Arena command
+    description: Main WaveRush command
+    usage: /ma
+
+permissions:
+  waverush.admin:
+    description: Full access to everything
+    default: op
+
+  waverush.create:
+    description: Create arenas
+    default: op
+
+  waverush.select:
+    description: Select arena positions
+    default: op
+
+  waverush.reload:
+    description: Reload plugin config
+    default: op
+
+  waverush.join:
+    description: Join arenas
+    default: true
+
+  waverush.menu:
+    description: Open menu
+    default: true
+
+  waverush.kit:
+    description: Select kits
+    default: true
