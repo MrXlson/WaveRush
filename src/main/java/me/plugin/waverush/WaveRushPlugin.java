@@ -8,61 +8,58 @@ import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.manager.KitManager;
 import me.plugin.waverush.manager.SelectionManager;
 import me.plugin.waverush.task.SignUpdateTask;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class WaveRushPlugin extends JavaPlugin {
 
     private ArenaManager arenaManager;
-    private SelectionManager selectionManager;
     private KitManager kitManager;
+    private SelectionManager selectionManager;
 
     @Override
     public void onEnable() {
+
+        // 🔥 INIT
+        this.arenaManager = new ArenaManager();
+        this.kitManager = new KitManager(this);
+        this.selectionManager = new SelectionManager();
+
+        // 🔥 CONFIG
         saveDefaultConfig();
 
-        // 🔥 Managers
-        arenaManager = new ArenaManager(this);
-        selectionManager = new SelectionManager();
-        kitManager = new KitManager(this);
+        // 🔥 LOAD KITS
+        kitManager.loadKits();
 
-        // 🔥 Command
-        getCommand("ma").setExecutor(new MACommand());
+        // 🔥 COMMAND
+        getCommand("ma").setExecutor(new MACommand(arenaManager, selectionManager, this));
 
-        // 🔥 Listeners
-        getServer().getPluginManager().registerEvents(
-                new ArenaListener(arenaManager, selectionManager), this);
+        // 🔥 LISTENERS
+        Bukkit.getPluginManager().registerEvents(new ArenaListener(arenaManager), this);
+        Bukkit.getPluginManager().registerEvents(new DeathListener(arenaManager), this);
+        Bukkit.getPluginManager().registerEvents(new SignListener(arenaManager), this);
 
-        getServer().getPluginManager().registerEvents(
-                new DeathListener(arenaManager), this);
+        // 🔥 TASKS (cedulky update každou sekundu)
+        new SignUpdateTask(arenaManager).runTaskTimer(this, 20L, 20L);
 
-        getServer().getPluginManager().registerEvents(
-                new SignListener(arenaManager), this);
-
-        // 🔥 Sign update task (každou sekundu)
-        new SignUpdateTask(arenaManager).runTaskTimer(this, 0L, 20L);
-
-        getLogger().info("WaveRush enabled!");
+        getLogger().info("WaveRush plugin byl zapnut!");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("WaveRush disabled!");
+        getLogger().info("WaveRush plugin byl vypnut!");
     }
 
-    // 🔥 RELOAD
-    public void reloadPluginConfig() {
-        reloadConfig();
-    }
-
+    // 🔥 GETTERY (pokud někde používáš)
     public ArenaManager getArenaManager() {
         return arenaManager;
     }
 
-    public SelectionManager getSelectionManager() {
-        return selectionManager;
-    }
-
     public KitManager getKitManager() {
         return kitManager;
+    }
+
+    public SelectionManager getSelectionManager() {
+        return selectionManager;
     }
 }
