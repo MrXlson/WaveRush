@@ -12,8 +12,8 @@ public class GameTask extends BukkitRunnable {
 
     private final Arena arena;
     private int wave = 1;
+    private int mobsLeft = 0;
 
-    // 🔥 KILLY
     private final Map<Player, Integer> kills = new HashMap<>();
 
     public GameTask(Arena arena) {
@@ -23,24 +23,31 @@ public class GameTask extends BukkitRunnable {
     @Override
     public void run() {
 
-        // ❌ pokud není dost hráčů → stop
         if (arena.getPlayers().isEmpty()) {
             cancel();
             return;
         }
 
-        // 🔥 DEBUG (zatím)
-        Bukkit.broadcastMessage("§a[WaveRush] Wave " + wave + " začíná!");
-
-        // 👉 TODO: tady později spawn mobů
-
-        wave++;
+        startWave();
     }
 
-    // ========================
-    // 🔥 KILLS SYSTEM
-    // ========================
+    private void startWave() {
+        mobsLeft = wave * 3; // jednoduchý scaling
 
+        Bukkit.broadcastMessage("§a[WaveRush] Wave " + wave + " start! Mobů: " + mobsLeft);
+    }
+
+    // 🔥 VOLÁ SE PŘI KILLU MOBKY
+    public void mobKilled() {
+        mobsLeft--;
+
+        if (mobsLeft <= 0) {
+            wave++;
+            startWave();
+        }
+    }
+
+    // 🔥 KILLS
     public void addKill(Player player) {
         kills.put(player, kills.getOrDefault(player, 0) + 1);
     }
@@ -48,10 +55,6 @@ public class GameTask extends BukkitRunnable {
     public int getKills(Player player) {
         return kills.getOrDefault(player, 0);
     }
-
-    // ========================
-    // 🔥 GETTERY
-    // ========================
 
     public int getWave() {
         return wave;
