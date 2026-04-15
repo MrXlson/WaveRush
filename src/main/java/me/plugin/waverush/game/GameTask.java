@@ -2,7 +2,10 @@ package me.plugin.waverush.game;
 
 import me.plugin.waverush.model.Arena;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -11,8 +14,10 @@ import java.util.Map;
 public class GameTask extends BukkitRunnable {
 
     private final Arena arena;
-    private int wave = 1;
-    private int mobsLeft = 0;
+
+    private int wave = 0;
+    private int mobsToKill = 0;
+    private int mobsKilled = 0;
 
     private final Map<Player, Integer> kills = new HashMap<>();
 
@@ -23,33 +28,80 @@ public class GameTask extends BukkitRunnable {
     @Override
     public void run() {
 
+        // Pokud arena nemá hráče → stop
         if (arena.getPlayers().isEmpty()) {
             cancel();
             return;
         }
 
-        startWave();
-    }
+        // Pokud ještě nezačala vlna → start
+        if (mobsToKill == 0) {
+            startNextWave();
+            return;
+        }
 
-    private void startWave() {
-        mobsLeft = wave * 3; // jednoduchý scaling
-
-        Bukkit.broadcastMessage("§a[WaveRush] Wave " + wave + " start! Mobů: " + mobsLeft);
-    }
-
-    // 🔥 VOLÁ SE PŘI KILLU MOBKY
-    public void mobKilled() {
-        mobsLeft--;
-
-        if (mobsLeft <= 0) {
-            wave++;
-            startWave();
+        // Kontrola dokončení vlny
+        if (mobsKilled >= mobsToKill) {
+            startNextWave();
         }
     }
 
-    // 🔥 KILLS
+    // ========================
+    // WAVE START
+    // ========================
+
+    private void startNextWave() {
+        wave++;
+        mobsKilled = 0;
+        mobsToKill = wave * 5; // každá vlna těžší
+
+        for (Player player : arena.getPlayers()) {
+            player.sendMessage("§aZačíná vlna §e" + wave + "§a!");
+        }
+
+        spawnWaveMobs();
+    }
+
+    // ========================
+    // SPAWN MOBŮ
+    // ========================
+
+    private void spawnWaveMobs() {
+        Location spawn = arena.getSpawn(); // MUSÍŠ mít v Arena
+
+        for (int i = 0; i < mobsToKill; i++) {
+
+            LivingEntity mob = (LivingEntity) spawn.getWorld().spawnEntity(
+                    spawn,
+                    getRandomMob()
+            );
+
+            mob.setCustomName("§cWave Mob");
+            mob.setCustomNameVisible(true);
+        }
+    }
+
+    private EntityType getRandomMob() {
+        EntityType[] mobs = {
+                EntityType.ZOMBIE,
+                EntityType.SKELETON,
+                EntityType.SPIDER
+        };
+
+        return mobs[(int) (Math.random() * mobs.length)];
+    }
+
+    // ========================
+    // KILLS
+    // ========================
+
     public void addKill(Player player) {
+        mobsKilled++;
+
         kills.put(player, kills.getOrDefault(player, 0) + 1);
+
+        // INFO hráči
+        player.sendActionBar("§7Zabito: §e" + mobsKilled + "§7/§e" + mobsToKill);
     }
 
     public int getKills(Player player) {
