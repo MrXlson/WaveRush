@@ -2,9 +2,8 @@ package me.plugin.waverush.listener;
 
 import me.plugin.waverush.manager.ArenaManager;
 import me.plugin.waverush.model.Arena;
-import me.plugin.waverush.game.GameTask;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -18,26 +17,25 @@ public class KillListener implements Listener {
     }
 
     @EventHandler
-    public void onKill(EntityDeathEvent event) {
+    public void onKill(EntityDeathEvent e) {
 
-        // 🔥 TADY JE TEN FIX
-        LivingEntity entity = event.getEntity();
+        if (!(e.getEntity() instanceof Monster)) return;
+        if (!(e.getEntity().getKiller() instanceof Player player)) return;
 
-        if (!(entity.getKiller() instanceof Player)) return;
+        Arena arena = getArena(player);
+        if (arena == null) return;
 
-        Player player = entity.getKiller();
-
-        for (Arena arena : arenaManager.getArenas()) {
-
-            if (!arena.getPlayers().contains(player)) continue;
-
-            GameTask gameTask = arena.getGameTask();
-            if (gameTask == null) return;
-
-            gameTask.addKill(player);
-            gameTask.mobKilled(entity);
-
-            break;
+        if (arena.getGameTask() != null) {
+            arena.getGameTask().mobKilled(player);
         }
+    }
+
+    private Arena getArena(Player player) {
+        for (Arena arena : arenaManager.getArenas()) {
+            if (arena.getPlayers().contains(player)) {
+                return arena;
+            }
+        }
+        return null;
     }
 }
